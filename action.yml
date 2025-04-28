@@ -74,7 +74,6 @@ runs:
         # $(./gen_manifest.sh "${{ steps.upload_asset.outputs.browser_download_url }}" "${{ inputs.asset_name }}" "${{ inputs.asset_description }}" "${{ inputs.spdx_filetype }}" "${{ inputs.asset_tsf_ids }}") >> $generated_file
 
         generated_file="tsf-manifest.json"
-
         asset_checksum=$(sha256sum "${{ inputs.file }}" | awk '{print $1}')
 
         jq -n \
@@ -93,15 +92,15 @@ runs:
                 "by-workflow": $by_workflow,
                 "commit-sha": $commit_sha,
                 "ref": $ref,
-                "repository": $repository,
+                "repository": $repository
             },
             "asset-info": {
-                "checksum": $checksum
+                "checksum": $checksum,
                 "description": $description,
-                "download-url": $download_url
+                "download-url": $download_url,
                 "name": $name,
                 "spdx-type": $spdx_type,
-                "tsf-ids": $tsf_ids,
+                "tsf-ids": $tsf_ids
             }
         }' > $generated_file
         echo "browser_manifest_url=$generated_file" >> $GITHUB_OUTPUT
