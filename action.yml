@@ -1,0 +1,112 @@
+# Copyright (C) 2025 Eclipse Foundation and others. 
+# 
+# This program and the accompanying materials are made available under the
+# terms of the Eclipse Public License v. 2.0 which is available at
+# http://www.eclipse.org/legal/epl-2.0.
+# 
+# SPDX-FileType: SOURCE
+# SPDX-FileCopyrightText: 2025 Eclipse Foundation
+# SPDX-License-Identifier: EPL-2.0
+
+name: 'tsffer'
+description: 'TSF transfer action - uploads a file to a GitHub release and generates a manifest.'
+branding:
+  icon: 'link-2'
+  color: 'gray-dark'
+  
+inputs:
+  github_token:
+    description: 'GitHub token.'
+    required: true
+    default: ${{ github.token }}
+  file:
+    description: 'Local file to upload.'
+    required: true
+  tag:
+    description: 'Tag to use as a release.'
+    required: true
+    default: ${{ github.ref }}
+  asset_name:
+    description: 'Name of the asset. When not provided will use the file name.'
+  asset_description:
+    description: 'More detailed description of the asset.'
+  spdx_filetype:
+    description: 'SPDX FileType of the asset'
+  asset_tsf_ids:
+    description: 'List of TSF identifiers that this asset pertains to; can be one or more identifiers separated by commas.'
+
+outputs:
+  release_asset_url:
+    description: 'Download url of the release asset.'
+    value: ${{ steps.upload_asset.outputs.browser_download_url }}
+  release_asset_manifest_url:
+    description: 'Download url of the release asset manifest.'
+    value: ${{ steps.upload_asset_manifest.outputs.browser_manifest_url }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install jq
+      run: |
+        set -e
+        sudo apt-get update
+        sudo apt-get install -y jq
+      shell: bash
+
+    - name: Cache jq install
+      uses: actions/cache@v3
+      with:
+        path: /usr/bin/jq
+        key: jq-cache
+        
+    - name: Upload release asset to release
+      uses: svenstaro/upload-release-action@v2
+      id: upload_asset
+      with:
+        repo_token: ${{ inputs.github_token }}
+        file: ${{ inputs.file }}
+        tag: ${{ inputs.tag }}
+
+    - name: Generate asset manifest
+      id: generate_manifest
+      run: |
+        # Run the script and capture the generated filename
+        # $(./gen_manifest.sh "${{ steps.upload_asset.outputs.browser_download_url }}" "${{ inputs.asset_name }}" "${{ inputs.asset_description }}" "${{ inputs.spdx_filetype }}" "${{ inputs.asset_tsf_ids }}") >> $generated_file
+
+        generated_file="tsf-manifest.json"
+
+        jq -n \
+        --arg repository "$GITHUB_REPOSITORY" \
+        --arg workflow "$GITHUB_WORKFLOW" \
+        --arg ref "$GITHUB_REF" \
+        --arg commit_sha "$GITHUB_SHA" \
+        --arg asset_name "$INPUT_ASSET_NAME" \
+        --arg spdx_type "$INPUT_SPDX_FILETYPE" \
+        --arg description "$INPUT_ASSET_DESCRIPTION" \
+        --argjson tsf_ids "$(echo "$INPUT_TSF_IDS" | jq -R 'split(",")')" \
+        --arg download_url "${{ steps.upload_asset.outputs.browser_download_url }}" \
+        '{
+            "context-info": {
+                "repository": $repository,
+                "by-workflow": $workflow,
+                "ref": $ref_name,
+                "commit-sha": $commit_sha,
+            },
+            "asset-info": {
+                "name": $asset_name,
+                "spdx-type": $spdx_type,
+                "description": $description,
+                "tsf-ids": $tsf_ids,
+                "download-url": $download_url
+            }
+        }' > $generated_file
+        echo "browser_manifest_url=$generated_file" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Upload release asset manifest to release
+      uses: svenstaro/upload-release-action@v2
+      id: upload_asset_manifest
+      with:
+        repo_token: ${{ inputs.github_token }}
+        file: ${{ steps.generate_manifest.outputs.browser_manifest_url }}
+        tag: ${{ inputs.tag }}

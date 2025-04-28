@@ -1,0 +1,161 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "$id": "https://github.com/AnotherDaniel/quevee/action/v1",
+    "description": "Schema for the tsffer action file",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "description": "Action name, must match the action.yml name"
+        },
+        "description": {
+            "type": "string",
+            "maxLength": 512,
+            "description": "Action description"
+        },
+        "branding": {
+            "type": "object",
+            "properties": {
+                "icon": {
+                    "type": "string",
+                    "enum": [
+                        "link-2"
+                    ],
+                    "description": "Icon for the action branding"
+                },
+                "color": {
+                    "type": "string",
+                    "enum": [
+                        "gray-dark"
+                    ],
+                    "description": "Color for the action branding"
+                }
+            },
+            "additionalProperties": false,
+            "description": "Specifies the branding properties"
+        },
+        "inputs": {
+            "type": "object",
+            "properties": {
+                "github_token": {
+                    "type": "string",
+                    "description": "GitHub token",
+                    "default": "${{ github.token }}"
+                },
+                "file": {
+                    "type": "string",
+                    "description": "Local file to upload"
+                },
+                "tag": {
+                    "type": "string",
+                    "description": "Tag to use as a release",
+                    "default": "${{ github.ref }}"
+                },
+                "asset_name": {
+                    "type": "string",
+                    "description": "Name of the asset. When not provided will use the file name"
+                },
+                "asset_description": {
+                    "type": "string",
+                    "description": "More detailed description of the asset"
+                },
+                "spdx_filetype": {
+                    "type": "string",
+                    "description": "SPDX FileType of the asset"
+                },
+                "asset_tsf_ids": {
+                    "type": "string",
+                    "description": "List of TSF identifiers that this asset pertains to; can be one or more identifiers separated by commas"
+                }
+            },
+            "required": [
+                "github_token",
+                "file",
+                "tag"
+            ],
+            "additionalProperties": false
+        },
+        "outputs": {
+            "type": "object",
+            "properties": {
+                "release_asset_url": {
+                    "type": "string",
+                    "description": "Download URL of the release asset"
+                },
+                "release_asset_manifest_url": {
+                    "type": "string",
+                    "description": "Download URL of the release asset manifest"
+                }
+            },
+            "required": [
+                "release_asset_url",
+                "release_asset_manifest_url"
+            ],
+            "additionalProperties": false
+        },
+        "runs": {
+            "type": "object",
+            "properties": {
+                "using": {
+                    "type": "string",
+                    "enum": [
+                        "composite"
+                    ],
+                    "description": "Defines the type of action"
+                },
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "Step name"
+                            },
+                            "id": {
+                                "type": "string",
+                                "description": "Step ID"
+                            },
+                            "run": {
+                                "type": "string",
+                                "description": "Command to run in the step"
+                            },
+                            "uses": {
+                                "type": "string",
+                                "description": "Action or reusable workflow to use"
+                            },
+                            "with": {
+                                "type": "object",
+                                "description": "Inputs for the step"
+                            },
+                            "shell": {
+                                "type": "string",
+                                "description": "Shell to use for the step"
+                            }
+                        },
+                        "required": [
+                            "name"
+                        ],
+                        "additionalProperties": false
+                    }
+                }
+            },
+            "required": [
+                "using",
+                "steps"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "required": [
+        "name",
+        "description",
+        "branding",
+        "inputs",
+        "outputs",
+        "runs"
+    ],
+    "additionalProperties": false
+}
