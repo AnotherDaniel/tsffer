@@ -89,7 +89,7 @@ runs:
             "context-info": {
                 "repository": $repository,
                 "by-workflow": $workflow,
-                "ref": $ref_name,
+                "ref": $ref,
                 "commit-sha": $commit_sha,
             },
             "asset-info": {
