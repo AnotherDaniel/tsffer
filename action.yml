@@ -70,12 +70,13 @@ runs:
     - name: Generate asset manifest
       id: generate_manifest
       run: |
-        # Run the script and capture the generated filename
-        # $(./gen_manifest.sh "${{ steps.upload_asset.outputs.browser_download_url }}" "${{ inputs.asset_name }}" "${{ inputs.asset_description }}" "${{ inputs.spdx_filetype }}" "${{ inputs.asset_tsf_ids }}") >> $generated_file
-
+        # Output filename
         generated_file="tsf-manifest.json"
+        
+        # Calculate sha256 checksum for asset file
         asset_checksum=$(sha256sum "${{ inputs.file }}" | awk '{print $1}')
 
+        # Generate json manifest for asset, write to output file
         jq -n \
         --arg checksum "$asset_checksum" \
         --arg description "${{ inputs.asset_description }}" \
