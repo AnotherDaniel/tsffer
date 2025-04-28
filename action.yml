@@ -77,30 +77,30 @@ runs:
         asset_checksum=$(sha256sum "${{ inputs.file }}" | awk '{print $1}')
 
         jq -n \
-        --arg by_workflow "$GITHUB_WORKFLOW" \
-        --arg commit_sha "$GITHUB_SHA" \
-        --arg ref "$GITHUB_REF" \
-        --arg repository "$GITHUB_REPOSITORY" \
         --arg checksum "$asset_checksum" \
         --arg description "${{ inputs.asset_description }}" \
         --arg download_url "${{ steps.upload_asset.outputs.browser_download_url }}" \
         --arg name "${{ inputs.asset_name }}" \
         --arg spdx_type "${{ inputs.spdx_filetype }}" \
         --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
+        --arg by_workflow "$GITHUB_WORKFLOW" \
+        --arg commit_sha "$GITHUB_SHA" \
+        --arg ref "$GITHUB_REF" \
+        --arg repository "$GITHUB_REPOSITORY" \
         '{
-            "context-info": {
-                "by-workflow": $by_workflow,
-                "commit-sha": $commit_sha,
-                "ref": $ref,
-                "repository": $repository
-            },
             "asset-info": {
-                "checksum": $checksum,
+                "checksum-sha256": $checksum,
                 "description": $description,
                 "download-url": $download_url,
                 "name": $name,
                 "spdx-type": $spdx_type,
                 "tsf-ids": $tsf_ids
+            },
+            "context-info": {
+                "by-workflow": $by_workflow,
+                "commit-sha": $commit_sha,
+                "ref": $ref,
+                "repository": $repository
             }
         }' > $generated_file
         echo "browser_manifest_url=$generated_file" >> $GITHUB_OUTPUT
