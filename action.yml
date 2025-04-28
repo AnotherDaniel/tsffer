@@ -75,29 +75,33 @@ runs:
 
         generated_file="tsf-manifest.json"
 
+        asset_checksum=$(sha256sum "${{ inputs.file }}" | awk '{print $1}')
+
         jq -n \
-        --arg repository "$GITHUB_REPOSITORY" \
-        --arg workflow "$GITHUB_WORKFLOW" \
-        --arg ref "$GITHUB_REF" \
+        --arg by_workflow "$GITHUB_WORKFLOW" \
         --arg commit_sha "$GITHUB_SHA" \
-        --arg asset_name "${{ inputs.asset_name }}" \
-        --arg spdx_type "${{ inputs.spdx_filetype }}" \
+        --arg ref "$GITHUB_REF" \
+        --arg repository "$GITHUB_REPOSITORY" \
+        --arg checksum "$asset_checksum" \
         --arg description "${{ inputs.asset_description }}" \
-        --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
         --arg download_url "${{ steps.upload_asset.outputs.browser_download_url }}" \
+        --arg name "${{ inputs.asset_name }}" \
+        --arg spdx_type "${{ inputs.spdx_filetype }}" \
+        --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
         '{
             "context-info": {
-                "repository": $repository,
-                "by-workflow": $workflow,
-                "ref": $ref,
+                "by-workflow": $by_workflow,
                 "commit-sha": $commit_sha,
+                "ref": $ref,
+                "repository": $repository,
             },
             "asset-info": {
-                "name": $asset_name,
-                "spdx-type": $spdx_type,
+                "checksum": $checksum
                 "description": $description,
-                "tsf-ids": $tsf_ids,
                 "download-url": $download_url
+                "name": $name,
+                "spdx-type": $spdx_type,
+                "tsf-ids": $tsf_ids,
             }
         }' > $generated_file
         echo "browser_manifest_url=$generated_file" >> $GITHUB_OUTPUT
