@@ -88,18 +88,20 @@ runs:
     - name: Generate and upload asset manifest
       id: generate_manifest
       run: |
+        set -x
+
         # Authenticate with GitHub CLI
         gh auth login --with-token "${{ inputs.github_token }}"
 
         # Process files based on file_glob
         if [ "${{ inputs.file_glob }}" = 'true' ]; then
-          for file in ${!inputs.file}; do
+          for file in "${{ inputs.file }}"; do
             if [ -f "$file" ]; then
-              echo "$file"
+              echo "Processing file: $file"
             fi
           done
         else
-          echo "${{ inputs.file }}"
+          echo "Processing single file: ${{ inputs.file }}"
         fi
 
         # Define the generate_manifest function
