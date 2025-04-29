@@ -12,27 +12,70 @@
 
 # tsffer Action
 
-This action uploads a file to a GitHub release and generates a manifest.
+This action uploads a file (release asset) to a GitHub release, generates a Trustable Software Framework [TSF](https://codethinklabs.gitlab.io/trustable/trustable/) manifest that contains some metadata for the asset, and uploaeds the metadata alongside the original release asset.
+The idea behind this action is to make it possible to create evidence links between TSF statements and corresponding release assets of a project - all automated via the project release workflow.
+The generated asset manifest file will have the same name as the release asset, with an added '.tsffer' extension. The asset manifest is using json syntax, and contains some metadata pertaining the the originating git repository and release run, as well as some user-provided input like asset name, description, asset type, and a list of TSF IDs that the asset pertains to.
 
-### Inputs
+## Inputs
+
 - `github_token` (required): GitHub token for authentication.
 - `file` (required): Path to the file to upload.
-- `tag` (required): Release tag to associate with the file.
-- `asset_name` (optional): Name of the asset.
+- `tag` (required): Tag of the release to upload to.
+- `asset_name` (optional): Name of the asset. When not provided will use the file name.
+- `asset_description` (optional): More detailed description of the asset (Default: `""`).
+- `asset_type` (optional): Type of the asset; free-text field that might be used to e.g. declare an asset to be of type DOCUMENTATION, SOURCE, etc (Default: `""`).
+- `asset_tsf_ids` (optional): List of TSF identifiers that this asset pertains to; can be one or more identifiers separated by commas (Default: `""`).
 
-### Outputs
-- `release_asset_url`: URL of the uploaded release asset.
-- `release_asset_manifest_url`: URL of the uploaded manifest file.
+## Outputs
 
-### Example Usage
+- `release_asset_url`: Download url of the release asset.
+- `release_asset_manifest_url`: Download url of the release asset manifest.
+
+## Example Usage
+
+Using tsffer in your workflow looks like this:
+
 ```yaml
 jobs:
   example:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: your-org/tsffer@v1
+      - uses: actions/checkout@v4
+      - name: Collect README artifact
+        uses: anotherdaniel/tsffer
+        id: tsffer_README
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./example.txt
-          tag: v1.0.0
+          file: README.md
+          tag: ${{ github.ref }}
+          asset_description: "For tsffer testing purposes, we are providing our README"
+          asset_name: "Project README"
+          asset_tsf_ids: "TT-TA_01,TT-TA_02"
+          asset_type: "DOCUMENTATION"
+```
+
+## Example manifest
+
+The above workflow will generate a `README.md.tsffer` manifest file alongside the original `README.md` in the list of release assets, with the following content:
+
+```json
+{
+  "asset-info": {
+    "checksum-sha256": "95ac473d757174f7bf5115fb523d6d28e77549f01b53b7a6893293c4c14fa6fd",
+    "description": "For tsffer testing purposes, we are providing our README",
+    "download-url": "https://github.com/AnotherDaniel/tsffer/releases/download/v0.0.10/README.md",
+    "name": "Project README",
+    "type": "DOCUMENTATION",
+    "tsf-ids": [
+      "TT-TA_01",
+      "TT-TA_02"
+    ]
+  },
+  "context-info": {
+    "by-workflow": ".github/workflows/release.yml",
+    "commit-sha": "49f990c11310c28d926368ace750275ca6b9baea",
+    "ref": "refs/tags/v0.0.10",
+    "repository": "AnotherDaniel/tsffer"
+  }
+}
+````

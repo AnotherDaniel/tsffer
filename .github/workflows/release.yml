@@ -41,10 +41,10 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           file: README.md
           tag: ${{ github.ref }}
-          asset_name: "Project README"
           asset_description: "For tsffer testing purposes, we are providing our brilliant README"
-          spdx_filetype: "DOCUMENTATION"
+          asset_name: "Project README"
           asset_tsf_ids: "TT-TA_01,TT-TA_02"
+          asset_type: "DOCUMENTATION"
 
       - name: Collect second quality artifact
         uses: ./ # Uses an action in the root directory

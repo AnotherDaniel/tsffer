@@ -23,17 +23,17 @@ inputs:
     description: 'Local file to upload.'
     required: true
   tag:
-    description: 'Tag to use as a release.'
+    description: 'Tag of the release to upload to.'
     required: true
     default: ${{ github.ref }}
   asset_name:
     description: 'Name of the asset. When not provided will use the file name.'
   asset_description:
-    description: 'More detailed description of the asset.'
-  spdx_filetype:
-    description: 'SPDX FileType of the asset'
+    description: 'More detailed description of the asset (Default: `""`).'
+  asset_type:
+    description: 'Type of the asset; free-text field that might be used to e.g. declare an asset to be of type DOCUMENTATION, SOURCE, etc (Default: `""`).'
   asset_tsf_ids:
-    description: 'List of TSF identifiers that this asset pertains to; can be one or more identifiers separated by commas.'
+    description: 'List of TSF identifiers that this asset pertains to; can be one or more identifiers separated by commas (Default: `""`).'
 
 outputs:
   release_asset_url:
@@ -70,9 +70,9 @@ runs:
     - name: Generate asset manifest
       id: generate_manifest
       run: |
-        # Set asset_name to equal file name, if empty
+        # Set asset_name to equal file name (sans any path information), if empty
         if [ -z "${{ inputs.asset_name }}" ]; then
-          asset_name="${{ inputs.file }}"
+          asset_name=$(basename "${{ inputs.file }}")
         else
           asset_name="${{ inputs.asset_name }}"
         fi
@@ -89,8 +89,8 @@ runs:
         --arg description "${{ inputs.asset_description }}" \
         --arg download_url "${{ steps.upload_asset.outputs.browser_download_url }}" \
         --arg name "$asset_name" \
-        --arg spdx_type "${{ inputs.spdx_filetype }}" \
         --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
+        --arg type "${{ inputs.asset_type }}" \
         --arg by_workflow "$GITHUB_WORKFLOW" \
         --arg commit_sha "$GITHUB_SHA" \
         --arg ref "$GITHUB_REF" \
@@ -101,8 +101,8 @@ runs:
                 "description": $description,
                 "download-url": $download_url,
                 "name": $name,
-                "spdx-type": $spdx_type,
-                "tsf-ids": $tsf_ids
+                "tsf-ids": $tsf_ids,
+                "type": $type
             },
             "context-info": {
                 "by-workflow": $by_workflow,

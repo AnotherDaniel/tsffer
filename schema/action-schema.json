@@ -46,28 +46,28 @@
                 },
                 "file": {
                     "type": "string",
-                    "description": "Local file to upload"
+                    "description": "Local file to upload."
                 },
                 "tag": {
                     "type": "string",
-                    "description": "Tag to use as a release",
+                    "description": "Tag of the release to upload to.",
                     "default": "${{ github.ref }}"
                 },
                 "asset_name": {
                     "type": "string",
-                    "description": "Name of the asset. When not provided will use the file name"
+                    "description": "Name of the asset. When not provided will use the file name."
                 },
                 "asset_description": {
                     "type": "string",
-                    "description": "More detailed description of the asset"
+                    "description": "More detailed description of the asset (Default: `\"\"`)."
                 },
-                "spdx_filetype": {
+                "asset_type": {
                     "type": "string",
-                    "description": "SPDX FileType of the asset"
+                    "description": "Type of the asset; free-text field that might be used to e.g. declare an asset to be of type DOCUMENTATION, SOURCE, etc (Default: `\"\"`)."
                 },
                 "asset_tsf_ids": {
                     "type": "string",
-                    "description": "List of TSF identifiers that this asset pertains to; can be one or more identifiers separated by commas"
+                    "description": "List of TSF identifiers that this asset pertains to; can be one or more identifiers separated by commas (Default: `\"\"`)."
                 }
             },
             "required": [
