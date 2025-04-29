@@ -61,20 +61,20 @@ The above workflow will generate a `README.md.tsffer` manifest file alongside th
 ```json
 {
   "asset-info": {
-    "checksum-sha256": "95ac473d757174f7bf5115fb523d6d28e77549f01b53b7a6893293c4c14fa6fd",
-    "description": "For tsffer testing purposes, we are providing our README",
-    "download-url": "https://github.com/AnotherDaniel/tsffer/releases/download/v0.0.10/README.md",
+    "checksum-sha256": "0b3f3339c15920d7dc6ccdbbc7577b0a33cf15cd412cd04effc16446b2a7f469",
+    "description": "For tsffer testing purposes, we are providing our brilliant README",
+    "download-url": "https://github.com/AnotherDaniel/tsffer/releases/download/v0.0.11/README.md",
     "name": "Project README",
-    "type": "DOCUMENTATION",
     "tsf-ids": [
       "TT-TA_01",
       "TT-TA_02"
-    ]
+    ],
+    "type": "DOCUMENTATION"
   },
   "context-info": {
     "by-workflow": ".github/workflows/release.yml",
-    "commit-sha": "49f990c11310c28d926368ace750275ca6b9baea",
-    "ref": "refs/tags/v0.0.10",
+    "commit-sha": "c6c4d32f109884c9ae1b56d23b0b8a2eeb247743",
+    "ref": "refs/tags/v0.0.11",
     "repository": "AnotherDaniel/tsffer"
   }
 }

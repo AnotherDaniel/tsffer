@@ -54,3 +54,12 @@ jobs:
           file: LICENSE
           tag: ${{ github.ref }}
           asset_tsf_ids: "TT-TA_03"
+
+      - name: Collect third quality artifact, as a glob
+        uses: ./ # Uses an action in the root directory
+        id: tsffer_glob
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          file: schema/*
+          file_glob: true
+          tag: ${{ github.ref }}

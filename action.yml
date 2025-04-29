@@ -22,6 +22,8 @@ inputs:
   file:
     description: 'Local file to upload.'
     required: true
+  file_glob:
+    description: 'If true the file can be a glob pattern, asset_name is ignored if this is true.'
   tag:
     description: 'Tag of the release to upload to.'
     required: true
@@ -65,11 +67,16 @@ runs:
       with:
         repo_token: ${{ inputs.github_token }}
         file: ${{ inputs.file }}
+        file_glob: ${{ inputs.file_glob }}
         tag: ${{ inputs.tag }}
 
     - name: Generate asset manifest
       id: generate_manifest
       run: |
+        set -e
+
+        echo "${{ steps.upload_asset.outputs.browser_download_url }}"
+
         # Set asset_name to equal file name (sans any path information), if empty
         if [ -z "${{ inputs.asset_name }}" ]; then
           asset_name=$(basename "${{ inputs.file }}")
