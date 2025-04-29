@@ -73,7 +73,7 @@ runs:
     - name: Generate and upload asset manifest
       id: generate_manifest
       run: |
-        set -x
+        # set -e
 
         generate_manifest() {
           local asset_file="$1"
@@ -120,9 +120,6 @@ runs:
               }
           }' > "$generated_file"
 
-          # Upload the manifest file to the release
-          gh release upload "${{ inputs.tag }}" "$generated_file"
-
           echo "$generated_file"
         }
 
@@ -131,15 +128,26 @@ runs:
           for file in ${{ inputs.file }}; do
             if [ -f "$file" ]; then
               echo "Processing file: $file"
+             
               # Add your file processing logic here
-              generate_manifest "$file"
+              asset_manifest=generate_manifest "$file"
+
+              # Upload the manifest file to the release
+              if [ -f "$asset_manifest" ]; then
+                gh release upload "${{ inputs.tag }}" "$asset_manifest"
+              fi
+
             fi
           done
 
         else
-          echo "Processing single file: ${{ inputs.file }}"
-          # Add your single file processing logic here
-          generate_manifest "${{ inputs.file }}"
+          echo "Processing single file: ${{ inputs.file }}"          
+          asset_manifest=generate_manifest "${{ inputs.file }}"
+
+          if [ -f "$asset_manifest" ]; then
+            gh release upload "${{ inputs.tag }}" "$asset_manifest"
+          fi
+
         fi
 
       env:
