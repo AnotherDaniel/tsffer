@@ -70,6 +70,13 @@ runs:
     - name: Generate asset manifest
       id: generate_manifest
       run: |
+        # Set asset_name to equal file name, if empty
+        if [ -z "${{ inputs.asset_name }}" ]; then
+          asset_name="${{ inputs.file }}"
+        else
+          asset_name="${{ inputs.asset_name }}"
+        fi
+
         # Manifest output filename - release artifact name with appended '.tsffer' 
         generated_file="${{ inputs.file }}.tsffer"
 
@@ -81,7 +88,7 @@ runs:
         --arg checksum "$asset_checksum" \
         --arg description "${{ inputs.asset_description }}" \
         --arg download_url "${{ steps.upload_asset.outputs.browser_download_url }}" \
-        --arg name "${{ inputs.asset_name }}" \
+        --arg name "$asset_name" \
         --arg spdx_type "${{ inputs.spdx_filetype }}" \
         --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
         --arg by_workflow "$GITHUB_WORKFLOW" \

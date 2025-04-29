@@ -34,9 +34,9 @@ jobs:
           echo ${{ steps.create_release.outputs.url }}
      
       # Do the quality artifact collection thing
-      - name: Collect quality artifacts
+      - name: Collect first quality artifact
         uses: ./ # Uses an action in the root directory
-        id: tsffer
+        id: tsffer_README
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           file: README.md
@@ -45,3 +45,12 @@ jobs:
           asset_description: "For tsffer testing purposes, we are providing our brilliant README"
           spdx_filetype: "DOCUMENTATION"
           asset_tsf_ids: "TT-TA_01,TT-TA_02"
+
+      - name: Collect second quality artifact
+        uses: ./ # Uses an action in the root directory
+        id: tsffer_LICENSE
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          file: LICENSE.md
+          tag: ${{ github.ref }}
+          asset_tsf_ids: "TT-TA_03"
