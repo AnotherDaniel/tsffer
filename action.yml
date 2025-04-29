@@ -127,10 +127,10 @@ runs:
         echo "browser_manifest_url=$generated_file" >> $GITHUB_OUTPUT
       shell: bash
 
-    - name: Upload release asset manifest to release
-      uses: svenstaro/upload-release-action@v2
-      id: upload_asset_manifest
-      with:
-        repo_token: ${{ inputs.github_token }}
-        file: ${{ steps.generate_manifest.outputs.browser_manifest_url }}
-        tag: ${{ inputs.tag }}
+    # - name: Upload release asset manifest to release
+    #   uses: svenstaro/upload-release-action@v2
+    #   id: upload_asset_manifest
+    #   with:
+    #     repo_token: ${{ inputs.github_token }}
+    #     file: ${{ steps.generate_manifest.outputs.browser_manifest_url }}
+    #     tag: ${{ inputs.tag }}
