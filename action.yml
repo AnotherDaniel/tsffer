@@ -77,18 +77,24 @@ runs:
 
         echo "${{ steps.upload_asset.outputs.browser_download_url }}"
 
+        if [ "${{ inputs.file_glob }}" = 'true' ]; then
+          asset_file=$(basename "${{ steps.upload_asset.outputs.browser_download_url }}")
+        else
+          asset_file="${{ inputs.file }}"
+        fi
+
         # Set asset_name to equal file name (sans any path information), if empty
         if [ -z "${{ inputs.asset_name }}" ]; then
-          asset_name=$(basename "${{ inputs.file }}")
+          asset_name=$(basename "$asset_file")
         else
           asset_name="${{ inputs.asset_name }}"
         fi
 
         # Manifest output filename - release artifact name with appended '.tsffer' 
-        generated_file="${{ inputs.file }}.tsffer"
+        generated_file="$asset_file.tsffer"
 
         # Calculate sha256 checksum for asset file
-        asset_checksum=$(sha256sum "${{ inputs.file }}" | awk '{print $1}')
+        asset_checksum=$(sha256sum ""$asset_file"" | awk '{print $1}')
 
         # Generate json manifest for asset, write to output file
         jq -n \
