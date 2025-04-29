@@ -91,7 +91,8 @@ runs:
         set -x
 
         # Authenticate with GitHub CLI
-        gh auth login --with-token "${{ inputs.github_token }}"
+        export GH_TOKEN="${{ github.token }}"
+        gh auth login
 
         # Process files based on file_glob
         if [ "${{ inputs.file_glob }}" = 'true' ]; then
