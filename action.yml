@@ -41,9 +41,9 @@ outputs:
   release_asset_url:
     description: 'Download url of the release asset.'
     value: ${{ steps.upload_asset.outputs.browser_download_url }}
-  release_asset_manifest_url:
-    description: 'Download url of the release asset manifest.'
-    value: ${{ steps.upload_asset_manifest.outputs.browser_manifest_url }}
+  # release_asset_manifest_url:
+  #   description: 'Download url of the release asset manifest.'
+  #   value: ${{ steps.upload_asset_manifest.outputs.browser_manifest_url }}
 
 runs:
   using: 'composite'
@@ -55,12 +55,27 @@ runs:
         sudo apt-get install -y jq
       shell: bash
 
-    - name: Cache jq install
-      uses: actions/cache@v3
+    - name: Install gh
+      run: |
+        set -e
+        (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
+          && sudo mkdir -p -m 755 /etc/apt/keyrings \
+                && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+                && cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+          && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+          && sudo apt update \
+          && sudo apt install gh -y
+      shell: bash
+
+    - name: Cache jq and gh installs
+      uses: actions/cache@v4
       with:
-        path: /usr/bin/jq
-        key: jq-cache
-        
+        path: |
+          /usr/bin/jq
+          /usr/bin/gh
+        key: jq-gh-cache
+
     - name: Upload release asset to release
       uses: svenstaro/upload-release-action@v2
       id: upload_asset
@@ -70,61 +85,73 @@ runs:
         file_glob: ${{ inputs.file_glob }}
         tag: ${{ inputs.tag }}
 
-    - name: Generate asset manifest
+    - name: Generate and upload asset manifest
       id: generate_manifest
       run: |
         #set -e
 
-        echo "${{ steps.upload_asset.outputs.browser_download_url }}"
+        gh auth login --with-token "${{ inputs.github_token }}"
 
-        # if [ "${{ inputs.file_glob }}" = 'true' ]; then
-        #   asset_file=$(basename "${{ steps.upload_asset.outputs.browser_download_url }}")
-        # else
-        #   asset_file="${{ inputs.file }}"
-        # fi
+        if [ "${{ inputs.file_glob }}" = 'true' ]; then
+          for file in ${!inputs.file}; do
+            if [ -f "$file" ]; then
+              out_file=generate_manifest "$file"
+            fi
+          done
 
-        # # Set asset_name to equal file name (sans any path information), if empty
-        # if [ -z "${{ inputs.asset_name }}" ]; then
-        #   asset_name=$(basename "$asset_file")
-        # else
-        #   asset_name="${{ inputs.asset_name }}"
-        # fi
+        else
+          out_file=generate_manifest "{{ $inputs.file }}"
+        fi
 
-        # # Manifest output filename - release artifact name with appended '.tsffer' 
-        # generated_file="$asset_file.tsffer"
+        generate_manifest() {
+          local asset_file="$1"
 
-        # # Calculate sha256 checksum for asset file
-        # asset_checksum=$(sha256sum "$asset_file" | awk '{print $1}')
+          # Set asset_name to equal file name (sans any path information), if empty
+          if [ -z "${{ inputs.asset_name }}" ]; then
+            asset_name=$(basename "$asset_file")
+          else
+            asset_name="${{ inputs.asset_name }}"
+          fi
 
-        # # Generate json manifest for asset, write to output file
-        # jq -n \
-        # --arg checksum "$asset_checksum" \
-        # --arg description "${{ inputs.asset_description }}" \
-        # --arg download_url "${{ steps.upload_asset.outputs.browser_download_url }}" \
-        # --arg name "$asset_name" \
-        # --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
-        # --arg type "${{ inputs.asset_type }}" \
-        # --arg by_workflow "$GITHUB_WORKFLOW" \
-        # --arg commit_sha "$GITHUB_SHA" \
-        # --arg ref "$GITHUB_REF" \
-        # --arg repository "$GITHUB_REPOSITORY" \
-        # '{
-        #     "asset-info": {
-        #         "checksum-sha256": $checksum,
-        #         "description": $description,
-        #         "download-url": $download_url,
-        #         "name": $name,
-        #         "tsf-ids": $tsf_ids,
-        #         "type": $type
-        #     },
-        #     "context-info": {
-        #         "by-workflow": $by_workflow,
-        #         "commit-sha": $commit_sha,
-        #         "ref": $ref,
-        #         "repository": $repository
-        #     }
-        # }' > $generated_file
-        echo "browser_manifest_url=$generated_file" >> $GITHUB_OUTPUT
+          # Manifest output filename - release artifact name with appended '.tsffer' 
+          generated_file="$asset_file.tsffer"
+
+          # Calculate sha256 checksum for asset file
+          asset_checksum=$(sha256sum "$asset_file" | awk '{print $1}')
+
+          # Generate json manifest for asset, write to output file
+          jq -n \
+          --arg checksum "$asset_checksum" \
+          --arg description "${{ inputs.asset_description }}" \
+          --arg download_url "$asset_file" \
+          --arg name "$asset_name" \
+          --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
+          --arg type "${{ inputs.asset_type }}" \
+          --arg by_workflow "$GITHUB_WORKFLOW" \
+          --arg commit_sha "$GITHUB_SHA" \
+          --arg ref "$GITHUB_REF" \
+          --arg repository "$GITHUB_REPOSITORY" \
+          '{
+              "asset-info": {
+                  "checksum-sha256": $checksum,
+                  "description": $description,
+                  "download-url": $download_url,
+                  "name": $name,
+                  "tsf-ids": $tsf_ids,
+                  "type": $type
+              },
+              "context-info": {
+                  "by-workflow": $by_workflow,
+                  "commit-sha": $commit_sha,
+                  "ref": $ref,
+                  "repository": $repository
+              }
+          }' > $generated_file
+
+          gh release upload "$generated_file"
+
+          echo "$generated_file"
+        }
       shell: bash
 
     # - name: Upload release asset manifest to release

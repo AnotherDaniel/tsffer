@@ -83,10 +83,6 @@
                 "release_asset_url": {
                     "type": "string",
                     "description": "Download URL of the release asset"
-                },
-                "release_asset_manifest_url": {
-                    "type": "string",
-                    "description": "Download URL of the release asset manifest"
                 }
             },
             "required": [
