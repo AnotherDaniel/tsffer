@@ -81,65 +81,67 @@ runs:
             if [ -f "$file" ]; then
               echo "Processing file: $file"
               # Add your file processing logic here
+              generate_manifest "$file"
             fi
           done
 
         else
           echo "Processing single file: ${{ inputs.file }}"
           # Add your single file processing logic here
+          generate_manifest "${{ inputs.file }}"
         fi
 
         # Define the generate_manifest function
-        # generate_manifest() {
-        #   local asset_file="$1"
+        generate_manifest() {
+          local asset_file="$1"
 
-        #   # Set asset_name to equal file name (sans any path information), if empty
-        #   if [ -z "${{ inputs.asset_name }}" ]; then
-        #     asset_name=$(basename "$asset_file")
-        #   else
-        #     asset_name="${{ inputs.asset_name }}"
-        #   fi
+          # Set asset_name to equal file name (sans any path information), if empty
+          if [ -z "${{ inputs.asset_name }}" ]; then
+            asset_name=$(basename "$asset_file")
+          else
+            asset_name="${{ inputs.asset_name }}"
+          fi
 
-        #   # Manifest output filename - release artifact name with appended '.tsffer'
-        #   generated_file="$asset_file.tsffer"
+          # Manifest output filename - release artifact name with appended '.tsffer'
+          generated_file="$asset_file.tsffer"
 
-        #   # Calculate sha256 checksum for asset file
-        #   asset_checksum=$(sha256sum "$asset_file" | awk '{print $1}')
+          # Calculate sha256 checksum for asset file
+          asset_checksum=$(sha256sum "$asset_file" | awk '{print $1}')
 
-        #   # Generate JSON manifest for asset, write to output file
-        #   jq -n \
-        #   --arg checksum "$asset_checksum" \
-        #   --arg description "${{ inputs.asset_description }}" \
-        #   --arg download_url "$asset_file" \
-        #   --arg name "$asset_name" \
-        #   --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
-        #   --arg type "${{ inputs.asset_type }}" \
-        #   --arg by_workflow "$GITHUB_WORKFLOW" \
-        #   --arg commit_sha "$GITHUB_SHA" \
-        #   --arg ref "$GITHUB_REF" \
-        #   --arg repository "$GITHUB_REPOSITORY" \
-        #   '{
-        #       "asset-info": {
-        #           "checksum-sha256": $checksum,
-        #           "description": $description,
-        #           "download-url": $download_url,
-        #           "name": $name,
-        #           "tsf-ids": $tsf_ids,
-        #           "type": $type
-        #       },
-        #       "context-info": {
-        #           "by-workflow": $by_workflow,
-        #           "commit-sha": $commit_sha,
-        #           "ref": $ref,
-        #           "repository": $repository
-        #       }
-        #   }' > "$generated_file"
+          # Generate JSON manifest for asset, write to output file
+          jq -n \
+          --arg checksum "$asset_checksum" \
+          --arg description "${{ inputs.asset_description }}" \
+          --arg download_url "$asset_file" \
+          --arg name "$asset_name" \
+          --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
+          --arg type "${{ inputs.asset_type }}" \
+          --arg by_workflow "$GITHUB_WORKFLOW" \
+          --arg commit_sha "$GITHUB_SHA" \
+          --arg ref "$GITHUB_REF" \
+          --arg repository "$GITHUB_REPOSITORY" \
+          '{
+              "asset-info": {
+                  "checksum-sha256": $checksum,
+                  "description": $description,
+                  "download-url": $download_url,
+                  "name": $name,
+                  "tsf-ids": $tsf_ids,
+                  "type": $type
+              },
+              "context-info": {
+                  "by-workflow": $by_workflow,
+                  "commit-sha": $commit_sha,
+                  "ref": $ref,
+                  "repository": $repository
+              }
+          }' > "$generated_file"
 
-        #   # Upload the manifest file to the release
-        #   gh release upload "${{ inputs.tag }}" "$generated_file"
+          # Upload the manifest file to the release
+          gh release upload "${{ inputs.tag }}" "$generated_file"
 
-        #   echo "$generated_file"
-        # }
+          echo "$generated_file"
+        }
       env:
         GH_TOKEN: ${{ inputs.github_token }}
         OWNER: ${{ github.repository_owner }}
