@@ -123,32 +123,33 @@ runs:
           echo "$generated_file"
         }
 
-        # Process files based on file_glob
-        if [ "${{ inputs.file_glob }}" = 'true' ]; then
-          for file in ${{ inputs.file }}; do
-            if [ -f "$file" ]; then
-              echo "Processing file: $file"
+        output=generate_manifest "${{ inputs.file }}"
+
+        cat "$output"
+
+
+        # # Process files based on file_glob
+        # if [ "${{ inputs.file_glob }}" = 'true' ]; then
+        #   for file in ${{ inputs.file }}; do
+        #     if [ -f "$file" ]; then
+        #       echo "Processing file: $file"
              
-              # Add your file processing logic here
-              asset_manifest=generate_manifest "$file"
+        #       # Add your file processing logic here
+        #       asset_manifest=generate_manifest "$file"
 
-              # Upload the manifest file to the release
-              if [ -f "$asset_manifest" ]; then
-                gh release upload "${{ inputs.tag }}" "$asset_manifest"
-              fi
-
-            fi
-          done
-
-        else
-          echo "Processing single file: ${{ inputs.file }}"          
-          output=generate_manifest "${{ inputs.file }}"
-
-          if [ -f "$output" ]; then
-            gh release upload "${{ inputs.tag }}" "$output"
-          fi
-
-        fi
+        #       # Upload the manifest file to the release
+        #       if [ -f "$asset_manifest" ]; then
+        #         gh release upload "${{ inputs.tag }}" "$asset_manifest"
+        #       fi
+        #     fi
+        #   done
+        # else
+        #   echo "Processing single file: ${{ inputs.file }}"          
+        #   output=generate_manifest "${{ inputs.file }}"
+        #   if [ -f "$output" ]; then
+        #     gh release upload "${{ inputs.tag }}" "$output"
+        #   fi
+        # fi
 
       env:
         GH_TOKEN: ${{ inputs.github_token }}
