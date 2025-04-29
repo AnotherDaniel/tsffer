@@ -73,7 +73,7 @@ runs:
     - name: Generate asset manifest
       id: generate_manifest
       run: |
-        set -e
+        #set -e
 
         echo "${{ steps.upload_asset.outputs.browser_download_url }}"
 
