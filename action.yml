@@ -70,7 +70,7 @@ runs:
     - name: Generate asset manifest
       id: generate_manifest
       run: |
-        # Mnifest output filename - release artifact name, with extension '.tsffer' 
+        # Manifest output filename - release artifact name, with extension '.tsffer' 
         generated_file=$(basename "${{ inputs.file }}" | sed 's/\.[^.]*$/.tsffer/')
         
         # Calculate sha256 checksum for asset file
