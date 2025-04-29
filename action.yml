@@ -77,13 +77,16 @@ runs:
 
         # Process files based on file_glob
         if [ "${{ inputs.file_glob }}" = 'true' ]; then
-          for file in "${{ inputs.file }}"; do
+          for file in ${{ inputs.file }}; do
             if [ -f "$file" ]; then
               echo "Processing file: $file"
+              # Add your file processing logic here
             fi
           done
+
         else
           echo "Processing single file: ${{ inputs.file }}"
+          # Add your single file processing logic here
         fi
 
         # Define the generate_manifest function
