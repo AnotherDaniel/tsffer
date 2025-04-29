@@ -51,6 +51,6 @@ jobs:
         id: tsffer_LICENSE
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          file: LICENSE.md
+          file: LICENSE
           tag: ${{ github.ref }}
           asset_tsf_ids: "TT-TA_03"
