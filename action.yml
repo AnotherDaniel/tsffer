@@ -88,21 +88,12 @@ runs:
     - name: Generate and upload asset manifest
       id: generate_manifest
       run: |
-        #set -e
+        set -e
 
+        # Authenticate with GitHub CLI
         gh auth login --with-token "${{ inputs.github_token }}"
 
-        if [ "${{ inputs.file_glob }}" = 'true' ]; then
-          for file in ${!inputs.file}; do
-            if [ -f "$file" ]; then
-              out_file=generate_manifest "$file"
-            fi
-          done
-
-        else
-          out_file=generate_manifest "{{ $inputs.file }}"
-        fi
-
+        # Define the generate_manifest function
         generate_manifest() {
           local asset_file="$1"
 
@@ -113,13 +104,13 @@ runs:
             asset_name="${{ inputs.asset_name }}"
           fi
 
-          # Manifest output filename - release artifact name with appended '.tsffer' 
+          # Manifest output filename - release artifact name with appended '.tsffer'
           generated_file="$asset_file.tsffer"
 
           # Calculate sha256 checksum for asset file
           asset_checksum=$(sha256sum "$asset_file" | awk '{print $1}')
 
-          # Generate json manifest for asset, write to output file
+          # Generate JSON manifest for asset, write to output file
           jq -n \
           --arg checksum "$asset_checksum" \
           --arg description "${{ inputs.asset_description }}" \
@@ -146,12 +137,24 @@ runs:
                   "ref": $ref,
                   "repository": $repository
               }
-          }' > $generated_file
+          }' > "$generated_file"
 
-          gh release upload "$generated_file"
+          # Upload the manifest file to the release
+          gh release upload "${{ inputs.tag }}" "$generated_file"
 
           echo "$generated_file"
         }
+
+        # Process files based on file_glob
+        if [ "${{ inputs.file_glob }}" = 'true' ]; then
+          for file in ${!inputs.file}; do
+            if [ -f "$file" ]; then
+              generate_manifest "$file"
+            fi
+          done
+        else
+          generate_manifest "${{ inputs.file }}"
+        fi
       shell: bash
 
     # - name: Upload release asset manifest to release
