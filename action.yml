@@ -73,7 +73,7 @@ runs:
     - name: Generate and upload asset manifest
       id: generate_manifest
       run: |
-        # set -e
+        set -x
 
         generate_manifest() {
           local asset_file="$1"
@@ -142,10 +142,10 @@ runs:
 
         else
           echo "Processing single file: ${{ inputs.file }}"          
-          asset_manifest=generate_manifest "${{ inputs.file }}"
+          output=generate_manifest "${{ inputs.file }}"
 
-          if [ -f "$asset_manifest" ]; then
-            gh release upload "${{ inputs.tag }}" "$asset_manifest"
+          if [ -f "$output" ]; then
+            gh release upload "${{ inputs.tag }}" "$output"
           fi
 
         fi
