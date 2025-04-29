@@ -77,53 +77,53 @@ runs:
 
         echo "${{ steps.upload_asset.outputs.browser_download_url }}"
 
-        if [ "${{ inputs.file_glob }}" = 'true' ]; then
-          asset_file=$(basename "${{ steps.upload_asset.outputs.browser_download_url }}")
-        else
-          asset_file="${{ inputs.file }}"
-        fi
+        # if [ "${{ inputs.file_glob }}" = 'true' ]; then
+        #   asset_file=$(basename "${{ steps.upload_asset.outputs.browser_download_url }}")
+        # else
+        #   asset_file="${{ inputs.file }}"
+        # fi
 
-        # Set asset_name to equal file name (sans any path information), if empty
-        if [ -z "${{ inputs.asset_name }}" ]; then
-          asset_name=$(basename "$asset_file")
-        else
-          asset_name="${{ inputs.asset_name }}"
-        fi
+        # # Set asset_name to equal file name (sans any path information), if empty
+        # if [ -z "${{ inputs.asset_name }}" ]; then
+        #   asset_name=$(basename "$asset_file")
+        # else
+        #   asset_name="${{ inputs.asset_name }}"
+        # fi
 
-        # Manifest output filename - release artifact name with appended '.tsffer' 
-        generated_file="$asset_file.tsffer"
+        # # Manifest output filename - release artifact name with appended '.tsffer' 
+        # generated_file="$asset_file.tsffer"
 
-        # Calculate sha256 checksum for asset file
-        asset_checksum=$(sha256sum ""$asset_file"" | awk '{print $1}')
+        # # Calculate sha256 checksum for asset file
+        # asset_checksum=$(sha256sum "$asset_file" | awk '{print $1}')
 
-        # Generate json manifest for asset, write to output file
-        jq -n \
-        --arg checksum "$asset_checksum" \
-        --arg description "${{ inputs.asset_description }}" \
-        --arg download_url "${{ steps.upload_asset.outputs.browser_download_url }}" \
-        --arg name "$asset_name" \
-        --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
-        --arg type "${{ inputs.asset_type }}" \
-        --arg by_workflow "$GITHUB_WORKFLOW" \
-        --arg commit_sha "$GITHUB_SHA" \
-        --arg ref "$GITHUB_REF" \
-        --arg repository "$GITHUB_REPOSITORY" \
-        '{
-            "asset-info": {
-                "checksum-sha256": $checksum,
-                "description": $description,
-                "download-url": $download_url,
-                "name": $name,
-                "tsf-ids": $tsf_ids,
-                "type": $type
-            },
-            "context-info": {
-                "by-workflow": $by_workflow,
-                "commit-sha": $commit_sha,
-                "ref": $ref,
-                "repository": $repository
-            }
-        }' > $generated_file
+        # # Generate json manifest for asset, write to output file
+        # jq -n \
+        # --arg checksum "$asset_checksum" \
+        # --arg description "${{ inputs.asset_description }}" \
+        # --arg download_url "${{ steps.upload_asset.outputs.browser_download_url }}" \
+        # --arg name "$asset_name" \
+        # --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
+        # --arg type "${{ inputs.asset_type }}" \
+        # --arg by_workflow "$GITHUB_WORKFLOW" \
+        # --arg commit_sha "$GITHUB_SHA" \
+        # --arg ref "$GITHUB_REF" \
+        # --arg repository "$GITHUB_REPOSITORY" \
+        # '{
+        #     "asset-info": {
+        #         "checksum-sha256": $checksum,
+        #         "description": $description,
+        #         "download-url": $download_url,
+        #         "name": $name,
+        #         "tsf-ids": $tsf_ids,
+        #         "type": $type
+        #     },
+        #     "context-info": {
+        #         "by-workflow": $by_workflow,
+        #         "commit-sha": $commit_sha,
+        #         "ref": $ref,
+        #         "repository": $repository
+        #     }
+        # }' > $generated_file
         echo "browser_manifest_url=$generated_file" >> $GITHUB_OUTPUT
       shell: bash
 
