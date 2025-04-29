@@ -88,8 +88,6 @@ runs:
     - name: Generate and upload asset manifest
       id: generate_manifest
       run: |
-        set -e
-
         # Authenticate with GitHub CLI
         gh auth login --with-token "${{ inputs.github_token }}"
 
