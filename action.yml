@@ -118,14 +118,14 @@ runs:
                   "ref": $ref,
                   "repository": $repository
               }
-          }' > "$generated_file"
-
-          echo "$generated_file"
+          }' 
+          
+          # > "$generated_file"
+          # echo "$generated_file"
         }
 
-        output=generate_manifest "${{ inputs.file }}"
-
-        cat "$output"
+        # output=generate_manifest "${{ inputs.file }}"
+        # cat "$output"
 
 
         # # Process files based on file_glob
