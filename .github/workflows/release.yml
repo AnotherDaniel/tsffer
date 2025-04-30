@@ -45,13 +45,12 @@ jobs:
           asset_tsf_ids: "TT-TA_01,TT-TA_02"
           asset_type: "DOCUMENTATION"
 
-      # - name: Collect second quality artifact
-      #   uses: ./ # Uses an action in the root directory
-      #   id: tsffer_LICENSE
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     file: LICENSE
-      #     asset_tsf_ids: "TT-TA_03"
+      - name: Collect second quality artifact
+        uses: ./ # Uses an action in the root directory
+        id: tsffer_LICENSE
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          file: LICENSE
 
       - name: Collect third quality artifact, as a glob
         uses: ./ # Uses an action in the root directory
@@ -60,3 +59,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           file: schema/*
           file_glob: true
+          asset_description: "Set of files constituting a report of some kind"
+          asset_type: "REPORT"
+          asset_tsf_ids: "TT-TA_03,TT-TA_04"

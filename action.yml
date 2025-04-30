@@ -34,7 +34,7 @@ inputs:
     description: 'List of TSF identifiers that this asset pertains to; can be one or more identifiers separated by commas (Default: `""`).'
 
 outputs:
-  release_asset_url:
+  release_url:
     description: 'URL of the release.'
     value: ${{ steps.generate_upload_manifest_asset.outputs.release_url }}
 

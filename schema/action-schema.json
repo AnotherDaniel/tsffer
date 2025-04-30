@@ -75,14 +75,13 @@
         "outputs": {
             "type": "object",
             "properties": {
-                "release_asset_url": {
+                "release_url": {
                     "type": "string",
-                    "description": "Download URL of the release asset"
+                    "description": "URL of the release"
                 }
             },
             "required": [
-                "release_asset_url",
-                "release_asset_manifest_url"
+                "release_url"
             ],
             "additionalProperties": false
         },
