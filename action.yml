@@ -123,10 +123,10 @@ runs:
               echo "Processing file: $file"
 
               # Manifest output filename - release artifact name with appended '.tsffer'
-              asset_file=$(basename "${{ inputs.file }}")
+              asset_file=$(basename "$file")
               generated_file="$asset_file.tsffer"
 
-              generate_manifest "${{ inputs.file }}" >> $generated_file
+              generate_manifest "$file" >> $generated_file
               gh release upload "${{ github.ref_name }}" "$generated_file"              
 
             fi
