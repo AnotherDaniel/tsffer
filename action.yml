@@ -104,7 +104,7 @@ runs:
         }
 
         create_upload_manifest() {
-          local $input_file="$1"
+          local input_file="$1"
 
           # Manifest output filename - release artifact name with appended '.tsffer'
           asset_file=$(basename "$input_file")
