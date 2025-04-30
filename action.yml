@@ -126,6 +126,8 @@ runs:
         generate_manifest "${{ inputs.file }}" >> $generated_file
         cat $generated_file
 
+        gh release upload "${{ inputs.tag }}" "$generated_file"
+
         # # Process files based on file_glob
         # if [ "${{ inputs.file_glob }}" = 'true' ]; then
         #   for file in ${{ inputs.file }}; do
