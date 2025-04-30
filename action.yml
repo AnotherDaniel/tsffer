@@ -73,8 +73,6 @@ runs:
     - name: Generate and upload asset manifest
       id: generate_manifest
       run: |
-        set -x
-
         generate_manifest() {
           local asset_file="$1"
 
@@ -124,9 +122,8 @@ runs:
           # echo "$generated_file"
         }
 
-        # output=generate_manifest "${{ inputs.file }}"
-        # cat "$output"
-
+        generate_manifest "${{ inputs.file }}"
+        
 
         # # Process files based on file_glob
         # if [ "${{ inputs.file_glob }}" = 'true' ]; then
