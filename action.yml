@@ -109,7 +109,7 @@ runs:
           # Generate manifest, upload manifest, upload asset (fail fast)
           generate_manifest "$input_file" >> $generated_file
           gh release upload "${{ github.ref_name }}" "$generated_file"
-          gh release upload "${{ github.ref_name }}" "$asset_file"
+          gh release upload "${{ github.ref_name }}" "$input_file"
         }
 
         # Process files based on file_glob
