@@ -68,7 +68,7 @@ runs:
           fi
 
           # Construct artifact download url
-          download_url="${{ github.server_url }}/${{ github.repository }}/releases/download/${{ github.ref_name }}/$asset_file"
+          download_url="${{ github.server_url }}/${{ github.repository }}/releases/download/${{ github.ref_name }}/$(basename $asset_file)"
 
           # Calculate sha256 checksum for asset file
           asset_checksum=$(sha256sum "$asset_file" | awk '{print $1}')
