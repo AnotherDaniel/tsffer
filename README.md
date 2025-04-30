@@ -20,7 +20,7 @@ The generated asset manifest file will have the same name as the release asset, 
 
 - `github_token` (required): GitHub token for authentication.
 - `file` (required): Path to the file to upload.
-- `tag` (required): Tag of the release to upload to.
+- `file_glob`: If set to true, the file argument can be a glob pattern (Default: false).
 - `asset_name` (optional): Name of the asset. When not provided will use the file name.
 - `asset_description` (optional): More detailed description of the asset (Default: `""`).
 - `asset_type` (optional): Type of the asset; free-text field that might be used to e.g. declare an asset to be of type DOCUMENTATION, SOURCE, etc (Default: `""`).
@@ -28,8 +28,23 @@ The generated asset manifest file will have the same name as the release asset, 
 
 ## Outputs
 
-- `release_asset_url`: Download url of the release asset.
-- `release_asset_manifest_url`: Download url of the release asset manifest.
+- `release_url`: URL of the release.
+
+## Target release and other expectations
+
+This action expects to run in the context of a release (tag-initiated) GitHub worflow, using an Ubuntu runner:
+
+- `github.ref_name` and `github.ref` are set to valid/real values, as these are used to determine asset upload target and download URLs
+- Ubuntu runner comes with pre-installed gh and jq binaries (this is currently the case on GitHub)
+
+## file_glob
+
+If used with input parameter `file_glob` set to `true`, the `file` parameter will be interpreted as a glob pattern, and all matching files will be treated identically:
+
+- a `.tsffer` manifest is generated for each file, with identical metadata each as provided by the workflow action
+- the asset files and the corresponding `.tsffer` manifests are uploaded to the GitHub release
+
+Please note that all uploaded files end up in a flat list of GitHub release assets - take care to not glob-upload multiple files with identical file names!
 
 ## Example Usage
 
@@ -47,7 +62,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           file: README.md
-          tag: ${{ github.ref }}
           asset_description: "For tsffer testing purposes, we are providing our README"
           asset_name: "Project README"
           asset_tsf_ids: "TT-TA_01,TT-TA_02"
@@ -61,9 +75,9 @@ The above workflow will generate a `README.md.tsffer` manifest file alongside th
 ```json
 {
   "asset-info": {
-    "checksum-sha256": "0b3f3339c15920d7dc6ccdbbc7577b0a33cf15cd412cd04effc16446b2a7f469",
-    "description": "For tsffer testing purposes, we are providing our brilliant README",
-    "download-url": "https://github.com/AnotherDaniel/tsffer/releases/download/v0.0.11/README.md",
+    "checksum-sha256": "db930ec18bfb83cd6db0180faead58d645a9ca71cff7b02e78e1583e3c89c7ec",
+    "description": "For tsffer testing purposes, we are providing our README",
+    "download-url": "https://github.com/AnotherDaniel/tsffer/releases/download/v0.0.42/README.md",
     "name": "Project README",
     "tsf-ids": [
       "TT-TA_01",
@@ -73,8 +87,9 @@ The above workflow will generate a `README.md.tsffer` manifest file alongside th
   },
   "context-info": {
     "by-workflow": ".github/workflows/release.yml",
-    "commit-sha": "c6c4d32f109884c9ae1b56d23b0b8a2eeb247743",
-    "ref": "refs/tags/v0.0.11",
+    "commit-sha": "bc100425602aed8f55005f37e689b8603be94637",
+    "ref": "refs/tags/v0.0.42",
+    "release-url": "https://github.com/AnotherDaniel/tsffer/releases/tag/v0.0.42",
     "repository": "AnotherDaniel/tsffer"
   }
 }

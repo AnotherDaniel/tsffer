@@ -8,6 +8,11 @@
 # SPDX-FileCopyrightText: 2025 Eclipse Foundation
 # SPDX-License-Identifier: EPL-2.0
 
+
+# This action expects to run in the context of a release (tag-initiated) GitHub worflow, using a Ubuntu runner:
+# - github.ref_name and github.ref are set to valid/real values, as these are used to determine asset upload target and download URLs
+# - Ubuntu runner comes with pre-installed gh and jq binaries (this is currently the case on GitHub)
+
 name: 'tsffer'
 description: 'TSF transfer action - uploads a file to a GitHub release and generates a corresponding TSF manifest.'
 branding:
