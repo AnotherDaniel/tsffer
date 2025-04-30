@@ -83,9 +83,6 @@ runs:
             asset_name="${{ inputs.asset_name }}"
           fi
 
-          # Manifest output filename - release artifact name with appended '.tsffer'
-          generated_file="$asset_file.tsffer"
-
           # Calculate sha256 checksum for asset file
           asset_checksum=$(sha256sum "$asset_file" | awk '{print $1}')
 
@@ -122,8 +119,12 @@ runs:
           # echo "$generated_file"
         }
 
-        generate_manifest "${{ inputs.file }}"
-        
+        # Manifest output filename - release artifact name with appended '.tsffer'
+        asset_file=$(basename "${{ inputs.file }}"")
+        generated_file="$asset_file.tsffer"
+
+        generate_manifest "${{ inputs.file }}" >> $generated_file
+        cat $generated_file
 
         # # Process files based on file_glob
         # if [ "${{ inputs.file_glob }}" = 'true' ]; then
