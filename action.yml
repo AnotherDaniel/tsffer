@@ -44,18 +44,11 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Upload release asset to release
-      uses: svenstaro/upload-release-action@v2
-      id: upload_asset
-      with:
-        repo_token: ${{ inputs.github_token }}
-        file: ${{ inputs.file }}
-        file_glob: ${{ inputs.file_glob }}
-        tag: ${{ github.ref }}
-
     - name: Generate and upload asset manifest
-      id: generate_manifest
+      id: generate_upload_manifest
       run: |
+        set -e
+
         # Generate json output with asset manifest data
         generate_manifest() {
           local asset_file="$1"
@@ -119,19 +112,27 @@ runs:
         if [ "${{ inputs.file_glob }}" = 'true' ]; then
           for file in ${{ inputs.file }}; do
             if [ -f "$file" ]; then
-
+              # Generate and upload asset manifest, and if that works do the actual asset
               create_upload_manifest "$file"
-
+              # gh release upload "${{ github.ref_name }}" "$file"
             fi
           done
         else
-
+          # Generate and upload asset manifest, and if that works do the actual asset
           create_upload_manifest "${{ inputs.file }}"
-
+          # gh release upload "${{ github.ref_name }}" "${{ inputs.file }}"
         fi
-
       env:
         GH_TOKEN: ${{ inputs.github_token }}
         OWNER: ${{ github.repository_owner }}
         REPO: ${{ github.event.repository.name }}
       shell: bash
+
+    - name: Upload release asset to release
+      uses: svenstaro/upload-release-action@v2
+      id: upload_asset
+      with:
+        repo_token: ${{ inputs.github_token }}
+        file: ${{ inputs.file }}
+        file_glob: ${{ inputs.file_glob }}
+        tag: ${{ github.ref }}
