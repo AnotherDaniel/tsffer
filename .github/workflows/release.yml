@@ -40,7 +40,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           file: README.md
-          tag: ${{ github.ref }}
           asset_description: "For tsffer testing purposes, we are providing our brilliant README"
           asset_name: "Project README"
           asset_tsf_ids: "TT-TA_01,TT-TA_02"
@@ -52,7 +51,6 @@ jobs:
       #   with:
       #     github_token: ${{ secrets.GITHUB_TOKEN }}
       #     file: LICENSE
-      #     tag: ${{ github.ref }}
       #     asset_tsf_ids: "TT-TA_03"
 
       - name: Collect third quality artifact, as a glob
@@ -62,4 +60,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           file: schema/*
           file_glob: true
-          tag: ${{ github.ref }}

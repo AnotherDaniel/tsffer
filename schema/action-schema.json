@@ -48,11 +48,6 @@
                     "type": "string",
                     "description": "Local file to upload."
                 },
-                "tag": {
-                    "type": "string",
-                    "description": "Tag of the release to upload to.",
-                    "default": "${{ github.ref }}"
-                },
                 "asset_name": {
                     "type": "string",
                     "description": "Name of the asset. When not provided will use the file name."
