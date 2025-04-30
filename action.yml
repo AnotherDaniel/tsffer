@@ -120,7 +120,7 @@ runs:
         }
 
         # Manifest output filename - release artifact name with appended '.tsffer'
-        asset_file=$(basename "${{ inputs.file }}"")
+        asset_file=$(basename "${{ inputs.file }}")
         generated_file="$asset_file.tsffer"
 
         generate_manifest "${{ inputs.file }}" >> $generated_file
