@@ -48,18 +48,18 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Install jq
-      run: |
-        set -e
-        sudo apt-get update
-        sudo apt-get install -y jq
-      shell: bash
+    # - name: Install jq
+    #   run: |
+    #     set -e
+    #     sudo apt-get update
+    #     sudo apt-get install -y jq
+    #   shell: bash
 
-    - name: Cache jq install
-      uses: actions/cache@v4
-      with:
-        path: /usr/bin/jq
-        key: jq-cache
+    # - name: Cache jq install
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: /usr/bin/jq
+    #     key: jq-cache
 
     - name: Upload release asset to release
       uses: svenstaro/upload-release-action@v2

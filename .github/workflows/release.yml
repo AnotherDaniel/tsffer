@@ -34,17 +34,17 @@ jobs:
           echo ${{ steps.create_release.outputs.url }}
      
       # Do the quality artifact collection thing
-      - name: Collect first quality artifact
-        uses: ./ # Uses an action in the root directory
-        id: tsffer_README
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          file: README.md
-          tag: ${{ github.ref }}
-          asset_description: "For tsffer testing purposes, we are providing our brilliant README"
-          asset_name: "Project README"
-          asset_tsf_ids: "TT-TA_01,TT-TA_02"
-          asset_type: "DOCUMENTATION"
+      # - name: Collect first quality artifact
+      #   uses: ./ # Uses an action in the root directory
+      #   id: tsffer_README
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     file: README.md
+      #     tag: ${{ github.ref }}
+      #     asset_description: "For tsffer testing purposes, we are providing our brilliant README"
+      #     asset_name: "Project README"
+      #     asset_tsf_ids: "TT-TA_01,TT-TA_02"
+      #     asset_type: "DOCUMENTATION"
 
       # - name: Collect second quality artifact
       #   uses: ./ # Uses an action in the root directory
@@ -55,11 +55,11 @@ jobs:
       #     tag: ${{ github.ref }}
       #     asset_tsf_ids: "TT-TA_03"
 
-      # - name: Collect third quality artifact, as a glob
-      #   uses: ./ # Uses an action in the root directory
-      #   id: tsffer_glob
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     file: schema/*
-      #     file_glob: true
-      #     tag: ${{ github.ref }}
+      - name: Collect third quality artifact, as a glob
+        uses: ./ # Uses an action in the root directory
+        id: tsffer_glob
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          file: schema/*
+          file_glob: true
+          tag: ${{ github.ref }}
