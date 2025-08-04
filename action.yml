@@ -144,13 +144,16 @@ runs:
           if [ -z "${{ inputs.asset_name }}" ]; then
             echo "Input 'asset_name' is empty, but required for mode 'reference'."
             exit 1
+          else
+            asset_name="${{ inputs.asset_name }}"
           fi
+
 
           # Generate JSON manifest for asset, write to output file
           jq -n \
           --arg checksum "$asset_checksum" \
           --arg description "${{ inputs.asset_description }}" \
-          --arg download_url "$download_url" \
+          --arg evidence_link "$evidence_link" \
           --arg name "$asset_name" \
           --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
           --arg type "${{ inputs.asset_type }}" \
