@@ -151,7 +151,6 @@ runs:
 
           # Generate JSON manifest for asset, write to output file
           jq -n \
-          --arg checksum "$asset_checksum" \
           --arg description "${{ inputs.asset_description }}" \
           --arg evidence_link "$evidence_link" \
           --arg name "$asset_name" \
@@ -164,7 +163,6 @@ runs:
           --arg repository "$GITHUB_REPOSITORY" \
           '{
               "asset-info": {
-                  "checksum-sha256": $checksum,
                   "description": $description,
                   "evidence_link": $evidence_link,
                   "name": $name,
