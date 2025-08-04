@@ -80,7 +80,6 @@
             },
             "required": [
                 "github_token",
-                "mode",
                 "tag"
             ],
             "additionalProperties": false
