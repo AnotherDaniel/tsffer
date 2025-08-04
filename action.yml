@@ -198,7 +198,7 @@ runs:
           local evidence_link="$1"
 
           # Manifest output filename - asset_name with appended '.tsffer'
-          generated_file="$asset_name.tsffer"
+          generated_file="${{ inputs.asset_name }}.tsffer"
 
           # Generate manifest, upload manifest
           generate_reference_manifest "$evidence_link" >> $generated_file
