@@ -44,13 +44,26 @@
                     "description": "GitHub token",
                     "default": "${{ github.token }}"
                 },
+                "mode": {
+                    "description": "Operation mode: 'file' (default) or 'reference'.",
+                    "type": "string",
+                    "default": "file"
+                },
                 "file": {
                     "type": "string",
-                    "description": "Local file to upload."
+                    "description": "Local file to upload (required if mode is 'file')."
+                },
+                "file_glob": {
+                    "type": "string",
+                    "description": "If true the file can be a glob pattern, asset_name is ignored if this is true (only relevant when mode is 'file')."
+                },
+                "reference": {
+                    "type": "string",
+                    "description": "URL reference to evidence (required if mode is 'reference')."
                 },
                 "asset_name": {
                     "type": "string",
-                    "description": "Name of the asset. When not provided will use the file name."
+                    "description": "Name of the asset. When not provided and mode is 'file', will use the file name; required if mode is 'reference'."
                 },
                 "asset_description": {
                     "type": "string",
@@ -67,7 +80,7 @@
             },
             "required": [
                 "github_token",
-                "file",
+                "mode",
                 "tag"
             ],
             "additionalProperties": false

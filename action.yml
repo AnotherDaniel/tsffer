@@ -24,13 +24,20 @@ inputs:
     description: 'GitHub token.'
     required: true
     default: ${{ github.token }}
+  mode:
+    description: 'Operation mode: "file" (default) or "reference".'
+    required: false
+    default: file  
   file:
-    description: 'Local file to upload.'
-    required: true
+    description: 'Local file to upload (required if mode is "file").'
+    required: false
   file_glob:
-    description: 'If true the file can be a glob pattern, asset_name is ignored if this is true.'
+    description: 'If true the file can be a glob pattern, asset_name is ignored if this is true (only relevant when mode is "file").'
+  reference:
+    description: 'URL reference to evidence (required if mode is "reference").'
+    required: false
   asset_name:
-    description: 'Name of the asset. When not provided will use the file name.'
+    description: 'Name of the asset. When not provided and mode is "file", will use the file name; required if mode is "reference".'
   asset_description:
     description: 'More detailed description of the asset (Default: `""`).'
   asset_type:
@@ -51,15 +58,39 @@ runs:
       run: |
         set -e
 
+        # Validate required inputs based on mode
+        if [ "${{ inputs.mode }}" = "file" ]; then
+          if [ -z "${{ inputs.file }}" ]; then
+            echo "Input 'file' is required when mode is 'file'."
+            exit 1
+          fi
+        elif [ "${{ inputs.mode }}" = "reference" ]; then
+          if [ -z "${{ inputs.reference }}" ]; then
+            echo "Input 'reference' is required when mode is 'reference'."
+            exit 1
+          fi
+          if [ -z "${{ inputs.asset_name }}" ]; then
+            echo "Input 'asset_name' is required when mode is 'reference'."
+            exit 1
+          fi
+        else
+          echo "Invalid mode: ${{ inputs.mode }}. Must be 'file' or 'reference'."
+          exit 1
+        fi
+
         # Derive release URL
         release_url="${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
 
         # Generate json output with asset manifest data
-        generate_manifest() {
+        generate_file_manifest() {
           local asset_file="$1"
 
           # Set asset_name to equal file name (sans any path information), if empty
           if [ -z "${{ inputs.asset_name }}" ]; then
+            if [ -z "${{ inputs.asset_file }}" ]; then
+              echo "Input 'asset_file' is empty, cannot derive 'asset_name'."
+              exit 1
+            fi
             asset_name=$(basename "$asset_file")
           else
             asset_name="${{ inputs.asset_name }}"
@@ -103,6 +134,48 @@ runs:
           }' 
         }
 
+        # Generate json output with evidence reference/link manifest data
+        generate_reference_manifest() {
+          local evidence_link="$1"
+
+          # Set asset_name to equal file name (sans any path information), if empty
+          if [ -z "${{ inputs.asset_name }}" ]; then
+            echo "Input 'asset_name' is empty, but required for mode 'reference'."
+            exit 1
+          fi
+
+          # Generate JSON manifest for asset, write to output file
+          jq -n \
+          --arg checksum "$asset_checksum" \
+          --arg description "${{ inputs.asset_description }}" \
+          --arg download_url "$download_url" \
+          --arg name "$asset_name" \
+          --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
+          --arg type "${{ inputs.asset_type }}" \
+          --arg by_workflow "$GITHUB_WORKFLOW" \
+          --arg commit_sha "$GITHUB_SHA" \
+          --arg ref "$GITHUB_REF" \
+          --arg release_url "$release_url" \
+          --arg repository "$GITHUB_REPOSITORY" \
+          '{
+              "asset-info": {
+                  "checksum-sha256": $checksum,
+                  "description": $description,
+                  "evidence_link": $evidence_link,
+                  "name": $name,
+                  "tsf-ids": $tsf_ids,
+                  "type": $type
+              },
+              "context-info": {
+                  "by-workflow": $by_workflow,
+                  "commit-sha": $commit_sha,
+                  "ref": $ref,
+                  "release-url": $release_url,
+                  "repository": $repository
+              }
+          }' 
+        }
+
         # Determine asset manifest filename, generate content, upload to github.ref_name (github release)
         create_upload_manifest() {
           local input_file="$1"
@@ -112,22 +185,38 @@ runs:
           generated_file="$asset_file.tsffer"
 
           # Generate manifest, upload manifest, upload asset (fail fast)
-          generate_manifest "$input_file" >> $generated_file
+          generate_file_manifest "$input_file" >> $generated_file
           gh release upload "${{ github.ref_name }}" "$generated_file"
           gh release upload "${{ github.ref_name }}" "$input_file"
         }
 
-        # Process files based on file_glob
-        if [ "${{ inputs.file_glob }}" = 'true' ]; then
-          for file in ${{ inputs.file }}; do
-            if [ -f "$file" ]; then
-              # Generate and upload asset manifest, and if that works do the actual asset
-              create_upload_manifest "$file"
-            fi
-          done
-        else
-          # Generate and upload asset manifest, and if that works do the actual asset
-          create_upload_manifest "${{ inputs.file }}"
+        # Generate evidence link/reference content, upload to github.ref_name (github release)
+        create_upload_reference() {
+          local evidence_link="$1"
+
+          # Manifest output filename - asset_name with appended '.tsffer'
+          generated_file="$asset_name.tsffer"
+
+          # Generate manifest, upload manifest
+          generate_reference_manifest "$evidence_link" >> $generated_file
+          gh release upload "${{ github.ref_name }}" "$generated_file"
+        }
+
+        if [ "${{ inputs.mode }}" = "file" ]; then
+          # Process files based on file_glob
+          if [ "${{ inputs.file_glob }}" = 'true' ]; then
+            for file in ${{ inputs.file }}; do
+              if [ -f "$file" ]; then
+                # Generate and upload asset manifest, and if that works do the actual asset
+                create_upload_manifest "$file"
+              fi
+            done
+          else
+            # Generate and upload asset manifest, and if that works do the actual asset
+            create_upload_manifest "${{ inputs.file }}"
+          fi
+        elif [ "${{ inputs.mode }}" = "reference" ]; then
+          create_upload_reference "${{ inputs.reference }}"
         fi
 
         echo "release_url=$release_url" >>$GITHUB_OUTPUT

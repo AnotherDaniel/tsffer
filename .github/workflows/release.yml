@@ -39,10 +39,11 @@ jobs:
         id: tsffer_README
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          mode: file
           file: README.md
           asset_description: "For tsffer testing purposes, we are providing our brilliant README"
           asset_name: "Project README"
-          asset_tsf_ids: "TT-TA_01,TT-TA_02"
+          asset_tsf_ids: "TA-BEHAVIOURS"
           asset_type: "DOCUMENTATION"
 
       - name: Collect second quality artifact
@@ -61,4 +62,17 @@ jobs:
           file_glob: true
           asset_description: "Set of files constituting a report of some kind"
           asset_type: "REPORT"
-          asset_tsf_ids: "TT-TA_03,TT-TA_04"
+          asset_tsf_ids: "TA-BEHAVIOURS,TA-CONSTRAINTS"
+
+      - name: Collect fourth quality artifact, a reference to this workflow
+        uses: ./ # Uses an action in the root directory
+        id: tsffer_REFERENCE
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          mode: reference
+          reference: "https://github.com/AnotherDaniel/tsffer/blob/369c487287fb1e2fbe15d580501445c5d2b062ed/.github/workflows/release.yml#L11"
+          asset_description: "Link to specific line in tsffer release automation"
+          asset_name: "ReleaseCI"
+          asset_tsf_ids: "TA-RELEASES,TA-ITERATIONS"
+          asset_type: "SOURCE"
+
