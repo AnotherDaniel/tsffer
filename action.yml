@@ -61,7 +61,8 @@ runs:
     - name: Generate and upload asset and manifest
       id: generate_upload_manifest_asset
       run: |
-        set -e
+        # set -e
+        set -euxo pipefail
 
         # Validate required inputs based on mode
         if [ "${{ inputs.mode }}" = "file" ]; then
