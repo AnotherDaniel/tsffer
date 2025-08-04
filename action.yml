@@ -93,10 +93,6 @@ runs:
 
           # Set asset_name to equal file name (sans any path information), if empty
           if [ -z "${{ inputs.asset_name }}" ]; then
-            if [ -z "${{ inputs.asset_file }}" ]; then
-              echo "Input 'asset_file' is empty, cannot derive 'asset_name'."
-              exit 1
-            fi
             asset_name=$(basename "$asset_file")
           else
             asset_name="${{ inputs.asset_name }}"
