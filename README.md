@@ -85,6 +85,14 @@ jobs:
           asset_name: "ReleaseCI"
           asset_tsf_ids: "TA-RELEASES,TA-ITERATIONS"
           asset_type: "SOURCE"
+      - name: Package quality artifacts, but leave assets in place
+        uses: anotherdaniel/tsffer
+        id: tsffer_package
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          mode: package
+          package_messy: true
+
 ```
 
 ## Example manifest
@@ -137,3 +145,5 @@ The second tsffer step will generate a `ReleaseCI.tsffer` json manifest only, wi
   }
 }
 ````
+
+The third tsffer step will package up the two previous files into an archive (`tsffer_assets.tar.bz2`), but leave the individual input files in place (`package_messy` parameter set to `true`).
