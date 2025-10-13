@@ -230,8 +230,9 @@ runs:
           if [ -z "$messy" ] || [ "$messy" != "true" ]; then
             for file in tsffer_assets/*; do
               if [ -f "$file" ]; then
+                filename=$(basename "$file")
                 # Remove tsffer file from GH release
-                gh release delete-asset "${{ github.ref_name }}" "$file" --yes
+                gh release delete-asset "${{ github.ref_name }}" "$filename" --yes
               fi
             done
           fi
