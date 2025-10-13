@@ -85,6 +85,7 @@ runs:
           fi
         elif [ "${{ inputs.mode }}" = "package" ]; then
           # No action here
+          :
         else
           echo "Invalid mode: ${{ inputs.mode }}. Must be 'file', 'reference' or 'package'."
           exit 1
