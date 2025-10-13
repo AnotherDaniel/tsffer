@@ -221,7 +221,7 @@ runs:
           gh release download "${{ github.ref_name }}" --pattern '*.tsffer' --dir tsffer_assets
 
           # Package tsffer files into archive
-          tar cfvj tsffer_assets.tar.bz2 tsffer_assets/*.tsffer
+          tar cvfj tsffer_assets.tar.bz2 -C tsffer_assets *.tsffer
 
           # Upload tsffer asset archive
           gh release upload "${{ github.ref_name }}" "tsffer_assets.tar.bz2"
