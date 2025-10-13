@@ -1,9 +1,9 @@
-# Copyright (C) 2025 Eclipse Foundation and others. 
-# 
+# Copyright (C) 2025 Eclipse Foundation and others.
+#
 # This program and the accompanying materials are made available under the
 # terms of the Eclipse Public License v. 2.0 which is available at
 # http://www.eclipse.org/legal/epl-2.0.
-# 
+#
 # SPDX-FileType: SOURCE
 # SPDX-FileCopyrightText: 2025 Eclipse Foundation
 # SPDX-License-Identifier: EPL-2.0
@@ -16,7 +16,7 @@ on:
 concurrency:
   group: "release-${{ github.head_ref || github.ref }}"
   cancel-in-progress: true
-    
+
 jobs:
   quality_artifacts_job:
     name: A job to collect quality artifacts
@@ -25,14 +25,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Create release
         uses: softprops/action-gh-release@v2
         id: create_release
       - name: Show release URL
         run: |
           echo ${{ steps.create_release.outputs.url }}
-     
+
       # Do the quality artifact collection thing
       - name: Collect first quality artifact
         uses: ./ # Uses an action in the root directory
@@ -76,3 +76,10 @@ jobs:
           asset_tsf_ids: "TA-RELEASES,TA-ITERATIONS"
           asset_type: "SOURCE"
 
+      - name: Package quality artifacts, but leave assets in place
+        uses: ./ # Uses an action in the root directory
+        id: tsffer_package
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          mode: package
+          package_messy: true
