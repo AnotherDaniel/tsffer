@@ -25,7 +25,7 @@ inputs:
     required: true
     default: ${{ github.token }}
   mode:
-    description: 'Operation mode: "file" (default) or "reference".'
+    description: 'Operation mode: "file" (default), "reference" or "package".'
     required: false
     default: file  
   file:
@@ -33,6 +33,9 @@ inputs:
     required: false
   file_glob:
     description: 'If true the file can be a glob pattern, asset_name is ignored if this is true (only relevant when mode is "file").'
+    required: false
+  package_messy:
+    description: 'If true, leave original tsffer files in place after packaging (only relevant when mode is "package").'
     required: false
   reference:
     description: 'URL reference to evidence (required if mode is "reference").'
@@ -80,6 +83,8 @@ runs:
             echo "Input 'asset_name' is required when mode is 'reference'."
             exit 1
           fi
+        elif [ "${{ inputs.mode }}" = "package" ]; then
+          # No action here
         else
           echo "Invalid mode: ${{ inputs.mode }}. Must be 'file' or 'reference'."
           exit 1
@@ -206,6 +211,31 @@ runs:
           gh release upload "${{ github.ref_name }}" "$generated_file"
         }
 
+        # Package all tsffer files in a release into an archive, optionally leaving the original files in place
+        package_assets() {
+          local messy="$1"
+
+          # Download all tsffer files from release context
+          mkdir tsffer_assets
+          gh release download "${{ github.ref_name }}" --pattern '*.tsffer' --dir tsffer_assets
+
+          # Package tsffer files into archive
+          tar cfvj tsffer_assets.tar.bz2 tsffer_assets/*.tsffer
+
+          # Upload tsffer asset archive
+          gh release upload "${{ github.ref_name }}" "tsffer_assets.tar.bz2"
+
+          # If we're supposed to be messy, then we're done - otherwise, delete all the individual tsffer files from release
+          if [ -z "$messy" ] || [ "$messy" != "true" ]; then
+            for file in tsffer_assets/*; do
+              if [ -f "$file" ]; then
+                # Remove tsffer file from GH release
+                gh release delete-asset "${{ github.ref_name }}" "$file" --yes
+              fi
+            done
+          fi
+        }
+
         if [ "${{ inputs.mode }}" = "file" ]; then
           # Process files based on file_glob
           if [ "${{ inputs.file_glob }}" = 'true' ]; then
@@ -221,6 +251,8 @@ runs:
           fi
         elif [ "${{ inputs.mode }}" = "reference" ]; then
           create_upload_reference "${{ inputs.reference }}"
+        elif [ "${{ inputs.mode }}" = "package" ]; then
+          package_assets "${{ inputs.package_messy }}"
         fi
 
         echo "release_url=$release_url" >>$GITHUB_OUTPUT

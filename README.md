@@ -14,6 +14,7 @@
 
 This action uploads a file (release asset) to a GitHub release, generates a Trustable Software Framework [TSF](https://codethinklabs.gitlab.io/trustable/trustable/) manifest that contains some metadata for the asset, and uploaeds the metadata alongside the original release asset (mode "file").
 Alternatively, an URL reference to a piece of evidence can be provided isntead of a file, which will result in only the manifest (containing the URL) being generated and uploaded to the release (mode "reference").
+The third mode ("package") can be run at the end of a release workflow, to collect and package all generated tsffer files into a single archive file, to reduce release asset cluttering.
 
 The idea behind this action is to make it possible to create evidence links between TSF statements and corresponding release assets of a project - all automated via the project release workflow.
 The generated asset manifest file will have the same name as the release asset, with an added '.tsffer' extension. For URL reference manifest files, the name is provided as configuration. The asset manifest is using json syntax, and contains some metadata pertaining the the originating git repository and release run, as well as some user-provided input like asset name, description, asset type, and a list of TSF IDs that the asset pertains to.
@@ -21,9 +22,10 @@ The generated asset manifest file will have the same name as the release asset, 
 ## Inputs
 
 - `github_token` (required): GitHub token for authentication.
-- `mode` (required): Operation mode: "file" (default) or "reference".
+- `mode` (required): Operation mode: "file" (default), "reference" or "package".
 - `file` (required if mode is "file"): Path to the file to upload.
 - `file_glob`: If set to true, the file argument can be a glob pattern (Default: false).
+- `package_messy`: If true, leave original tsffer files in place after packaging (only relevant when mode is "package").
 - `reference` (required if mode is "reference"): URL reference to evidence.
 - `asset_name` (required if mode is "reference"): Name of the asset. When not provided and mode is "file", will use the file name.
 - `asset_description` (optional): More detailed description of the asset (Default: `""`).
@@ -71,9 +73,9 @@ jobs:
           asset_name: "Project README"
           asset_tsf_ids: "TA-BEHAVIOURS"
           asset_type: "DOCUMENTATION"
-      - name: Collect README artifact
+      - name: Point to action in release workflow
         uses: anotherdaniel/tsffer
-        id: tsffer_README
+        id: tsffer_ReleaseCI
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           mode: reference

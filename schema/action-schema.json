@@ -45,7 +45,7 @@
                     "default": "${{ github.token }}"
                 },
                 "mode": {
-                    "description": "Operation mode: 'file' (default) or 'reference'.",
+                    "description": "Operation mode: 'file' (default), 'reference' or 'package'.",
                     "type": "string",
                     "default": "file"
                 },
@@ -56,6 +56,10 @@
                 "file_glob": {
                     "type": "string",
                     "description": "If true the file can be a glob pattern, asset_name is ignored if this is true (only relevant when mode is 'file')."
+                },
+                "package_messy": {
+                    "type": "boolean",
+                    "description": "If true, leave original tsffer files in place after packaging (only relevant when mode is 'package')."
                 },
                 "reference": {
                     "type": "string",
