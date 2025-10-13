@@ -12,11 +12,12 @@
 
 # tsffer Action
 
-This action uploads a file (release asset) to a GitHub release, generates a Trustable Software Framework [TSF](https://codethinklabs.gitlab.io/trustable/trustable/) manifest that contains some metadata for the asset, and uploaeds the metadata alongside the original release asset (mode "file").
-Alternatively, an URL reference to a piece of evidence can be provided isntead of a file, which will result in only the manifest (containing the URL) being generated and uploaded to the release (mode "reference").
-The third mode ("package") can be run at the end of a release workflow, to collect and package all generated tsffer files into a single archive file, to reduce release asset cluttering.
+The tsffer action creates evidence links between TSF statements and corresponding release assets of a project - automated via the project release workflow. The tsffer action has three operation modes:
 
-The idea behind this action is to make it possible to create evidence links between TSF statements and corresponding release assets of a project - all automated via the project release workflow.
+- mode `file`: upload a file (release asset) to a GitHub release, generates a Trustable Software Framework [TSF](https://codethinklabs.gitlab.io/trustable/trustable/) manifest that contains some metadata for the asset, and uploaeds the metadata alongside the original release asset.
+- mode `reference`:Alternatively, an URL reference to a piece of evidence can be provided isntead of a file, which will result in only the manifest (containing the URL) being generated and uploaded to the release.
+- mode `package`: typically run at the end of a release workflow, this mode collects and packages all generated tsffer files into a single archive file, to reduce release asset cluttering.
+
 The generated asset manifest file will have the same name as the release asset, with an added '.tsffer' extension. For URL reference manifest files, the name is provided as configuration. The asset manifest is using json syntax, and contains some metadata pertaining the the originating git repository and release run, as well as some user-provided input like asset name, description, asset type, and a list of TSF IDs that the asset pertains to.
 
 ## Inputs
