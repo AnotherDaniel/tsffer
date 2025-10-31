@@ -27,7 +27,7 @@ The generated asset manifest file will have the same name as the release asset, 
 - `file` (required if mode is "file"): Path to the file to upload.
 - `file_glob`: If set to true, the file argument can be a glob pattern (Default: false).
 - `package_messy`: If true, leave original tsffer files in place after packaging (only relevant when mode is "package").
-- `reference` (required if mode is "reference"): URL reference to evidence.
+- `references` (required if mode is "reference"): URL(s) referencing evidence. Multiple URLs can be provided by using `|` as a separator.
 - `asset_name` (required if mode is "reference"): Name of the asset. When not provided and mode is "file", will use the file name.
 - `asset_description` (optional): More detailed description of the asset (Default: `""`).
 - `asset_type` (optional): Type of the asset; free-text field that might be used to e.g. declare an asset to be of type DOCUMENTATION, SOURCE, etc (Default: `""`).
@@ -80,7 +80,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           mode: reference
-          reference: "https://github.com/AnotherDaniel/tsffer/blob/369c487287fb1e2fbe15d580501445c5d2b062ed/.github/workflows/release.yml#L11"
+          references: "https://github.com/AnotherDaniel/tsffer/blob/369c487287fb1e2fbe15d580501445c5d2b062ed/.github/workflows/release.yml#L11|https://www.example.org"
           asset_description: "Link to specific line in tsffer release automation"
           asset_name: "ReleaseCI"
           asset_tsf_ids: "TA-RELEASES,TA-ITERATIONS"
@@ -128,7 +128,10 @@ The second tsffer step will generate a `ReleaseCI.tsffer` json manifest only, wi
   "asset-info": {
     "checksum-sha256": "db930ec18bfb83cd6db0180faead58d645a9ca71cff7b02e78e1583e3c89c7ec",
     "description": "Link to specific line in tsffer release automation",
-    "evidence_link": "https://github.com/AnotherDaniel/tsffer/blob/369c487287fb1e2fbe15d580501445c5d2b062ed/.github/workflows/release.yml#L11",
+    "evidence_links": [
+      "https://github.com/AnotherDaniel/tsffer/blob/369c487287fb1e2fbe15d580501445c5d2b062ed/.github/workflows/release.yml#L11",
+      "https://www.example.org",
+    ],
     "name": "ReleaseCI",
     "tsf-ids": [
       "TA-RELEASES",
