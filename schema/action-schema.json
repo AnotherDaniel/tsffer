@@ -61,7 +61,7 @@
                     "type": "boolean",
                     "description": "If true, leave original tsffer files in place after packaging (only relevant when mode is 'package')."
                 },
-                "references": {
+                "reference_urls": {
                     "type": "string",
                     "description": "URL(s) referencing evidence. Multiple URLs can be provided by using `|` as a separator (required if mode is 'reference')."
                 },

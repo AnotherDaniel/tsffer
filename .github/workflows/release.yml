@@ -70,7 +70,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           mode: reference
-          references: "https://github.com/AnotherDaniel/tsffer/blob/369c487287fb1e2fbe15d580501445c5d2b062ed/.github/workflows/release.yml#L11|https://www.example.org"
+          reference_urls: "https://github.com/AnotherDaniel/tsffer/blob/369c487287fb1e2fbe15d580501445c5d2b062ed/.github/workflows/release.yml#L11|https://www.example.org"
           asset_description: "Link to specific line in tsffer release automation"
           asset_name: "ReleaseCI"
           asset_tsf_ids: "TA-RELEASES,TA-ITERATIONS"

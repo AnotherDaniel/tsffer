@@ -37,7 +37,7 @@ inputs:
   package_messy:
     description: 'If true, leave original tsffer files in place after packaging (only relevant when mode is "package").'
     required: false
-  references:
+  reference_urls:
     description: 'URL(s) reference to evidence, multiple URLs can be provided by using `|` as a separator (required if mode is "reference").'
     required: false
   asset_name:
@@ -75,7 +75,7 @@ runs:
             exit 1
           fi
         elif [ "${{ inputs.mode }}" = "reference" ]; then
-          if [ -z "${{ inputs.reference }}" ]; then
+          if [ -z "${{ inputs.reference_urls }}" ]; then
             echo "Input 'reference' is required when mode is 'reference'."
             exit 1
           fi
@@ -252,7 +252,7 @@ runs:
             create_upload_manifest "${{ inputs.file }}"
           fi
         elif [ "${{ inputs.mode }}" = "reference" ]; then
-          create_upload_reference "${{ inputs.references }}"
+          create_upload_reference "${{ inputs.reference_urls }}"
         elif [ "${{ inputs.mode }}" = "package" ]; then
           package_assets "${{ inputs.package_messy }}"
         fi
