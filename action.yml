@@ -229,6 +229,8 @@ runs:
           tsffer_file="tsffer_assets.tar.bz2"
           echo $tsffer_file
 
+          ls -lh tsffer_assets/
+
           # Package tsffer files into archive
           tar cvfj $tsffer_file -C tsffer_assets $(ls tsffer_assets/*.tsffer | xargs -n1 basename)
         }
