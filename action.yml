@@ -223,12 +223,12 @@ runs:
         # Package all tsffer files in a release into an archive, optionally leaving the original files in place
         package_assets() {
           # Download all tsffer files from release context
-          mkdir tsffer_assets
-          gh run download "${{ github.run_id }}" --pattern '*.tsffer' --dir tsffer_assets
+          mkdir tmp
+          gh run download "${{ github.run_id }}" --pattern '*.tsffer' --dir tmp
 
-          # flatten amazingly stupid dir structure that gh run download creates
-          find tsffer_assets -mindepth 2 -type f -exec mv -t tsffer_assets {} +
-          find tsffer_assets -type d -empty -delete
+          # Flatten amazingly stupid dir structure that gh run download creates
+          mkdir tsffer_assets
+          find tmp -mindepth 2 -type f -exec mv -t tsffer_assets {} +
 
           tsffer_file="tsffer_assets.tar.bz2"
           echo $tsffer_file
