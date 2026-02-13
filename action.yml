@@ -226,6 +226,10 @@ runs:
           mkdir tsffer_assets
           gh run download "${{ github.run_id }}" --pattern '*.tsffer' --dir tsffer_assets
 
+          # flatten amazingly stupid dir structure that gh run download creates
+          find tsffer_assets -mindepth 2 -type f -exec mv -t tsffer_assets {} +
+          find tsffer_assets -type d -empty -delete
+
           tsffer_file="tsffer_assets.tar.bz2"
           echo $tsffer_file
 
