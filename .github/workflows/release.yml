@@ -11,6 +11,7 @@
 # Please note that the specific tsffer configuration in the steps below is primarily chosen to illustrate different usage scenarios;
 # this is not necessarily reflecting a best-of-breed configuration.
 
+---
 # .github/workflows/release.yml
 name: Release workflow
 
@@ -40,7 +41,7 @@ jobs:
 
       # Do the quality artifact collection thing
       - name: Collect first quality artifact (upload to release set)
-        uses: ./ # Uses an action in the root directory
+        uses: ./
         id: tsffer_README
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -53,14 +54,14 @@ jobs:
           asset_type: "DOCUMENTATION"
 
       - name: Collect second quality artifact (implicitly don't upload to release set)
-        uses: ./ # Uses an action in the root directory
+        uses: ./
         id: tsffer_LICENSE
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           file: LICENSE
 
       - name: Collect third quality artifact, as a glob (explicitly don't upload to release set)
-        uses: ./ # Uses an action in the root directory
+        uses: ./
         id: tsffer_glob
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -72,7 +73,7 @@ jobs:
           asset_tsf_ids: "TA-BEHAVIOURS,TA-CONSTRAINTS"
 
       - name: Collect fourth quality artifact, a reference to this workflow (upload to release set)
-        uses: ./ # Uses an action in the root directory
+        uses: ./
         id: tsffer_REFERENCE
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -103,7 +104,7 @@ jobs:
           echo ${{ steps.create_release.outputs.url }}
 
       - name: Package quality artifacts and upload to release
-        uses: ./ # Uses an action in the root directory
+        uses: ./
         id: tsffer_package
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

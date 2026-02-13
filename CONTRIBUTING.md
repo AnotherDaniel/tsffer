@@ -19,21 +19,21 @@ Eclipse Dash is a place where the community itself collaborates on tools for
 community awareness and collaboration in support of our ultimate objective of
 committer quality and cooperation.
 
-* https://projects.eclipse.org/projects/technology.dash
+* [Eclipse Dash](https://projects.eclipse.org/projects/technology.dash)
 
 ## Developer resources
 
 Information regarding source code management, builds, coding standards, and
 more.
 
-* https://projects.eclipse.org/projects/technology.dash/developer
+* [Developer resources](https://projects.eclipse.org/projects/technology.dash/developer)
 
 ## Eclipse Contributor Agreement
 
 In order to be able to contribute to Eclipse Foundation projects you must
 electronically sign the Eclipse Contributor Agreement (ECA).
 
-* https://www.eclipse.org/legal/ECA.php
+* [Contributor Agreement](https://www.eclipse.org/legal/ECA.php)
 
 The ECA provides the Eclipse Foundation with a permanent record that you agree
 that each of your contributions will comply with the commitments documented in
@@ -42,10 +42,10 @@ the email address matching the "Author" field of your contribution's Git commits
 fulfills the DCO's requirement that you sign-off on your contributions.
 
 For more information, please see the Eclipse Committer Handbook:
-https://www.eclipse.org/projects/handbook/#resources-commit
+[Committer Handbook](https://www.eclipse.org/projects/handbook/#resources-commit)
 
 ## Contact
 
 Contact the project developers via the project's "dev" list.
 
-* https://dev.eclipse.org/mailman/listinfo/dash-dev
+* [Contact Dash project](https://dev.eclipse.org/mailman/listinfo/dash-dev)

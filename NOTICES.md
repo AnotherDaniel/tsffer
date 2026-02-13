@@ -13,7 +13,7 @@
 
 This content is produced and maintained by the Eclipse Dash project.
 
-* Project home: https://projects.eclipse.org/projects/technology.dash
+* [Project home](https://projects.eclipse.org/projects/technology.dash)
 
 ## Copyright
 
