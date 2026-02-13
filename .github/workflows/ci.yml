@@ -34,9 +34,11 @@ jobs:
             - name: Lint workflow files
               uses: github/super-linter@v4
               env:
-                  FILTER_REGEX_INCLUDE: .github/workflows/*.yml
+                  # FILTER_REGEX_INCLUDE: .github/workflows/*.yml
                   DEFAULT_BRANCH: main
                   # only run YAML checks to keep the job fast
+                  VALIDATE_JSON: true
+                  VALIDATE_MARKDOWN: true
                   VALIDATE_YAML: true
 
     lint-shell:
