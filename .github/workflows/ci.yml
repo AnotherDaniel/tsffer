@@ -33,7 +33,7 @@ jobs:
             - uses: actions/checkout@v4
             - name: Lint workflow files
               uses: github/super-linter@v4
-              with:
+              env:
                   FILTER_REGEX_INCLUDE: .github/workflows/*.yml
                   DEFAULT_BRANCH: main
                   # only run YAML checks to keep the job fast
