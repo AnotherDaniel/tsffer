@@ -38,6 +38,7 @@ jobs:
               env:
                   # FILTER_REGEX_INCLUDE: .github/workflows/*.yml
                   DEFAULT_BRANCH: main
+                  FILTER_REGEX_EXCLUDE: (CODE_OF_CONDUCT|CONTRIBUTING|NOTICES|SECURITY)\.md|LICENSE|LICENSES/.*
                   VALIDATE_JSON: true
                   VALIDATE_MARKDOWN: true
                   VALIDATE_YAML: true
