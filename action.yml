@@ -259,6 +259,8 @@ runs:
 
     - name: Upload tsffer file to artifacts store
       uses: actions/upload-artifact@v4
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
       with:
         name: ${{ steps.generate_upload_manifest_asset.outputs.tsffer_file }}
         path: tsffer/
@@ -267,3 +269,5 @@ runs:
       if: ${{ inputs.tsffer_upload == 'true' }}
       run: gh release upload "${{ github.ref_name }}" "${{ steps.generate_upload_manifest_asset.outputs.tsffer_file }}"
       shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
