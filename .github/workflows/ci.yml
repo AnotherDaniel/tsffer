@@ -36,7 +36,8 @@ jobs:
               env:
                   # FILTER_REGEX_INCLUDE: .github/workflows/*.yml
                   DEFAULT_BRANCH: main
-                  # only run YAML checks to keep the job fast
+                  YAML_CONFIG_FILE: .yamllint
+                  MARKDOWN_CONFIG_FILE: .markdownlint.json
                   VALIDATE_JSON: true
                   VALIDATE_MARKDOWN: true
                   VALIDATE_YAML: true
