@@ -23,6 +23,7 @@ permissions:
     actions: read
     id-token: none
     pull-requests: write
+    statuses: write
 
 jobs:
     validate-workflow:
