@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality_artifacts_job:
+  quality_artifacts:
     name: A job to collect quality artifacts
     runs-on: ubuntu-latest
     permissions: write-all
@@ -78,6 +78,11 @@ jobs:
           asset_tsf_ids: "TA-RELEASES,TA-ITERATIONS"
           asset_type: "SOURCE"
 
+  artifacts_upload:
+    name: A job to add quality artifact archive to release file set
+    runs-on: ubuntu-latest
+    needs: quality_artifacts
+    steps:
       - name: Package quality artifacts, but leave assets in place
         uses: ./ # Uses an action in the root directory
         id: tsffer_package

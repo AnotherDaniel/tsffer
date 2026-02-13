@@ -221,7 +221,7 @@ runs:
         package_assets() {
           # Download all tsffer files from release context
           mkdir tsffer_assets
-          gh run download "$GITHUB_RUN_ID" --pattern '*.tsffer' --dir tsffer_assets
+          gh run download "${{ github.run_id }}" --pattern '*.tsffer' --dir tsffer_assets
 
           tsffer_file="tsffer_assets.tar.bz2"
 
