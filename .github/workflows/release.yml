@@ -11,6 +11,9 @@
 # Please note that the specific tsffer configuration in the steps below is primarily chosen to illustrate different usage scenarios;
 # this is not necessarily reflecting a best-of-breed configuration.
 
+# .github/workflows/release.yml
+name: Release workflow
+
 on:
   push:
     tags:
@@ -24,7 +27,9 @@ jobs:
   quality_artifacts:
     name: A job to collect quality artifacts
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      contents: write
+      actions: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -82,7 +87,9 @@ jobs:
   artifacts_upload:
     name: Upload quality artifact archive to release file set
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      contents: write
+      actions: read
     needs: quality_artifacts
     steps:
       - name: Checkout
