@@ -26,13 +26,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create release
-        uses: softprops/action-gh-release@v2
-        id: create_release
-      - name: Show release URL
-        run: |
-          echo ${{ steps.create_release.outputs.url }}
-
       # Do the quality artifact collection thing
       - name: Collect first quality artifact
         uses: ./ # Uses an action in the root directory
@@ -81,8 +74,16 @@ jobs:
   artifacts_upload:
     name: A job to add quality artifact archive to release file set
     runs-on: ubuntu-latest
+    permissions: write-all
     needs: quality_artifacts
     steps:
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        id: create_release
+      - name: Show release URL
+        run: |
+          echo ${{ steps.create_release.outputs.url }}
+
       - name: Package quality artifacts, but leave assets in place
         uses: ./ # Uses an action in the root directory
         id: tsffer_package
