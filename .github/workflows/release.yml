@@ -8,6 +8,9 @@
 # SPDX-FileCopyrightText: 2025 Eclipse Foundation
 # SPDX-License-Identifier: EPL-2.0
 
+# Please note that the specific tsffer configuration in the steps below is primarily chosen to illustrate different usage scenarios;
+# this is not necessarily reflecting a best-of-breed configuration.
+
 on:
   push:
     tags:
