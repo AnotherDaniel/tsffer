@@ -8,17 +8,17 @@
 # SPDX-FileCopyrightText: 2025 Eclipse Foundation
 # SPDX-License-Identifier: EPL-2.0
 
-
 # This action expects to run in the context of a release (tag-initiated) GitHub worflow, using a Ubuntu runner:
 # - github.ref_name and github.ref are set to valid/real values, as these are used to determine asset upload target and download URLs
 # - Ubuntu runner comes with pre-installed gh and jq binaries (this is currently the case on GitHub)
 
+---
 name: 'tsffer'
 description: 'TSF transfer action - uploads a file to a GitHub release and generates a corresponding TSF manifest.'
 branding:
   icon: 'link-2'
   color: 'gray-dark'
-  
+
 inputs:
   github_token:
     description: 'GitHub token.'
@@ -27,7 +27,7 @@ inputs:
   mode:
     description: 'Operation mode: "file" (default), "reference" or "package".'
     required: false
-    default: file  
+    default: file
   release_upload:
     description: 'Boolean (true/false) switch determining whether generated tsffer file/archive should be uploaded to release file set (default: false).'
     required: false
@@ -158,7 +158,6 @@ runs:
             asset_name="${{ inputs.asset_name }}"
           fi
 
-
           # Generate JSON manifest for asset, write to output file
           jq -n \
           --arg description "${{ inputs.asset_description }}" \
@@ -186,7 +185,7 @@ runs:
                   "release-url": $release_url,
                   "repository": $repository
               }
-          }' 
+          }'
         }
 
         # Determine asset manifest filename, generate content, upload asset to github.ref_name (github release)
