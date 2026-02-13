@@ -199,7 +199,7 @@ runs:
 
           # Generate manifest
           generate_file_manifest "$input_file" >> $generated_file
-          tsffer_file = $generated_file
+          tsffer_file=$generated_file
 
           # Always upload asset to release set - tsffer file upload is determined separately (below)
           gh release upload "${{ github.ref_name }}" "$input_file"
@@ -214,7 +214,7 @@ runs:
 
           # Generate manifest
           generate_reference_manifest "$evidence_links" >> $generated_file
-          tsffer_file = $generated_file
+          tsffer_file=$generated_file
         }
 
         # Package all tsffer files in a release into an archive, optionally leaving the original files in place
@@ -223,7 +223,7 @@ runs:
           mkdir tsffer_assets
           gh run download "$GITHUB_RUN_ID" --pattern '*.tsffer' --dir tsffer_assets
 
-          tsffer_file = "tsffer_assets.tar.bz2"
+          tsffer_file="tsffer_assets.tar.bz2"
 
           # Package tsffer files into archive
           tar cvfj $tsffer_file -C tsffer_assets $(ls tsffer_assets/*.tsffer | xargs -n1 basename)
