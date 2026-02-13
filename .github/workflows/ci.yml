@@ -27,13 +27,15 @@ jobs:
     validate-workflow:
         name: Validate workflow YAML
         runs-on: ubuntu-latest
+        env:
+            GH_TOKEN: ${{ github.token }}
         steps:
             - uses: actions/checkout@v4
             - name: Lint workflow files
               uses: github/super-linter@v4
               with:
-                  repo-token: ${{ secrets.GITHUB_TOKEN }}
-                  lint-include: .github/workflows/*.yml
+                  FILTER_REGEX_INCLUDE: .github/workflows/*.yml
+                  DEFAULT_BRANCH: main
                   # only run YAML checks to keep the job fast
                   VALIDATE_YAML: true
                   VALIDATE_MARKDOWN: false
@@ -44,7 +46,7 @@ jobs:
                   VALIDATE_PYTHON: false
                   VALIDATE_DOCKERFILE: false
                   VALIDATE_BASH: false
-                  FILTER_GIT_MODIFIED: false
+
     lint-shell:
         name: Shell Script Lint
         runs-on: ubuntu-latest
