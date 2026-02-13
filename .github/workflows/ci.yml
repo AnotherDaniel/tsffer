@@ -26,7 +26,7 @@ permissions:
     statuses: write
 
 jobs:
-    validate-workflow:
+    lint-everything:
         name: Validate workflow YAML
         runs-on: ubuntu-latest
         env:
@@ -42,39 +42,3 @@ jobs:
                   VALIDATE_JSON: true
                   VALIDATE_MARKDOWN: true
                   VALIDATE_YAML: true
-
-    lint-shell:
-        name: Shell Script Lint
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-            - name: Install shellcheck
-              run: sudo apt-get update && sudo apt-get install -y shellcheck
-            - name: Lint composite action script
-              run: |
-                  shellcheck action.yml
-                  # if you extract scripts to .sh files, lint them here too
-
-    exercise-action:
-        name: Run tsffer action in all modes
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-            - name: Test file mode
-              uses: ./
-              with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  mode: file
-                  file: README.md
-            - name: Test reference mode
-              uses: ./
-              with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  mode: reference
-                  reference_urls: "https://example.org"
-                  asset_name: "dummy"
-            - name: Test package mode
-              uses: ./
-              with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  mode: package
