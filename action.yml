@@ -92,7 +92,7 @@ runs:
         fi
 
         # Placeholder/variable for generated tsffer metadata file
-        tsffer_file = ""
+        tsffer_file=""
 
         # Derive release URL
         release_url="${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
