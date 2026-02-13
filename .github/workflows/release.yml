@@ -23,13 +23,12 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Print run ID
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh run view $GITHUB_RUN_ID
-
-      - name: Checkout
-        uses: actions/checkout@v4
 
       # Do the quality artifact collection thing
       - name: Collect first quality artifact
@@ -82,13 +81,13 @@ jobs:
     permissions: write-all
     needs: quality_artifacts
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Print run ID
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh run view $GITHUB_RUN_ID
-
-      - name: Checkout
-        uses: actions/checkout@v4
 
       - name: Create release
         uses: softprops/action-gh-release@v2
