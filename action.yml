@@ -189,8 +189,8 @@ runs:
           }' 
         }
 
-        # Determine asset manifest filename, generate content, upload to github.ref_name (github release)
-        create_upload_manifest() {
+        # Determine asset manifest filename, generate content, upload asset to github.ref_name (github release)
+        create_asset_manifest_upload() {
           local input_file="$1"
 
           # Manifest output filename - release artifact name with appended '.tsffer'
@@ -201,12 +201,14 @@ runs:
           generate_file_manifest "$input_file" >> $generated_file
           tsffer_file=$generated_file
 
+          echo $tsffer_file
+
           # Always upload asset to release set - tsffer file upload is determined separately (below)
           gh release upload "${{ github.ref_name }}" "$input_file"
         }
 
         # Generate evidence link/reference content, upload to github.ref_name (github release)
-        create_upload_reference() {
+        create_reference_manifest() {
           local evidence_links="$1"
 
           # Manifest output filename - asset_name with appended '.tsffer'
@@ -215,6 +217,7 @@ runs:
           # Generate manifest
           generate_reference_manifest "$evidence_links" >> $generated_file
           tsffer_file=$generated_file
+          echo $tsffer_file
         }
 
         # Package all tsffer files in a release into an archive, optionally leaving the original files in place
@@ -224,6 +227,7 @@ runs:
           gh run download "${{ github.run_id }}" --pattern '*.tsffer' --dir tsffer_assets
 
           tsffer_file="tsffer_assets.tar.bz2"
+          echo $tsffer_file
 
           # Package tsffer files into archive
           tar cvfj $tsffer_file -C tsffer_assets $(ls tsffer_assets/*.tsffer | xargs -n1 basename)
@@ -236,19 +240,20 @@ runs:
             for file in ${{ inputs.file }}; do
               if [ -f "$file" ]; then
                 # Generate and upload asset manifest, and if that works do the actual asset
-                create_upload_manifest "$file"
+                create_asset_manifest_upload "$file"
               fi
             done
           else
             # Generate and upload asset manifest, and if that works do the actual asset
-            create_upload_manifest "${{ inputs.file }}"
+            create_asset_manifest_upload "${{ inputs.file }}"
           fi
         elif [ "${{ inputs.mode }}" = "reference" ]; then
-          create_upload_reference "${{ inputs.reference_urls }}"
+          create_reference_manifest "${{ inputs.reference_urls }}"
         elif [ "${{ inputs.mode }}" = "package" ]; then
           package_assets
         fi
 
+        echo $tsffer_file
         echo "tsffer_file=$tsffer_file" >>$GITHUB_OUTPUT
 
       env:
