@@ -268,7 +268,7 @@ runs:
         GH_TOKEN: ${{ inputs.github_token }}
       with:
         name: ${{ steps.generate_upload_manifest_asset.outputs.tsffer_file }}
-        path: tsffer/
+        path: ${{ steps.generate_upload_manifest_asset.outputs.tsffer_file }}
 
     - name: Upload tsffer file to release set
       if: ${{ inputs.tsffer_upload == 'true' }}
