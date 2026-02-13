@@ -12,13 +12,14 @@
 
 # tsffer Action
 
-The tsffer action creates evidence links between TSF statements and corresponding release assets of a project - automated via the project release workflow. The tsffer action has three operation modes:
+The tsffer action collects metadata about evidence that can support statements about quality and process adherence of a project - automated via the project release workflow. It is designed to support adoption of the Trustable Software Framework [TSF](https://codethinklabs.gitlab.io/trustable/trustable/).
+The tsffer action has three operation modes:
 
-- mode `file`: upload a file (release asset) to a GitHub release, generates a Trustable Software Framework [TSF](https://codethinklabs.gitlab.io/trustable/trustable/) manifest that contains some metadata for the asset, and uploaeds the metadata alongside the original release asset.
-- mode `reference`:Alternatively, an URL reference to a piece of evidence can be provided isntead of a file, which will result in only the manifest (containing the URL) being generated and uploaded to the release.
-- mode `package`: typically run at the end of a release workflow, this mode collects and packages all generated tsffer files into a single archive file, to reduce release asset cluttering.
+- mode `file`: upload a file (release asset) to a GitHub release, generates a tsffer manifest that contains some metadata about the asset, and optionally upload manifest to release file set.
+- mode `reference`: create tsffer evidence manifest file based on an URL reference, and optionally upload to release file set.
+- mode `package`: typically run at the end of a release workflow, collect and package all generated tsffer manifest files into a single archive file, and optionally upload to release file set.
 
-The generated asset manifest file will have the same name as the release asset, with an added '.tsffer' extension. For URL reference manifest files, the name is provided as configuration. The asset manifest is using json syntax, and contains some metadata pertaining the the originating git repository and release run, as well as some user-provided input like asset name, description, asset type, and a list of TSF IDs that the asset pertains to.
+The generated asset manifest file will have the same name as the release asset, with an added '.tsffer' extension. For URL reference manifest files, the name is provided via tsffer action configuration. The asset manifest is using json syntax, and contains some metadata pertaining the the originating git repository and release run, as well as some user-provided input like asset name, description, asset type, and a list of TSF IDs that the asset pertains to.
 
 ## Inputs
 
@@ -26,7 +27,7 @@ The generated asset manifest file will have the same name as the release asset, 
 - `mode` (required): Operation mode: "file" (default), "reference" or "package".
 - `file` (required if mode is "file"): Path to the file to upload.
 - `file_glob`: If set to true, the file argument can be a glob pattern (Default: false).
-- `package_messy`: If true, leave original tsffer files in place after packaging (only relevant when mode is "package").
+- `release_upload`: Boolean (true/false) switch determining whether generated tsffer file/archive should be uploaded to release file set (default: false).
 - `reference_urls` (required if mode is "reference"): URL(s) referencing evidence. Multiple URLs can be provided by using `|` as a separator.
 - `asset_name` (required if mode is "reference"): Name of the asset. When not provided and mode is "file", will use the file name.
 - `asset_description` (optional): More detailed description of the asset (Default: `""`).
@@ -35,7 +36,7 @@ The generated asset manifest file will have the same name as the release asset, 
 
 ## Outputs
 
-- `release_url`: URL of the release.
+- `tsffer_file`: Name of generated json file or tar archive containing tsffer metadata.
 
 ## Target release and other expectations
 
@@ -91,13 +92,13 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           mode: package
-          package_messy: true
+          release_upload: true
 
 ```
 
 ## Example manifest
 
-The above workflow will generate a `README.md.tsffer` manifest file alongside the original `README.md` in the list of release assets, with the following content:
+The above workflow will generate a `README.md.tsffer` manifest file pipeline run artifact, with the following content:
 
 ```json
 {
@@ -121,7 +122,7 @@ The above workflow will generate a `README.md.tsffer` manifest file alongside th
 }
 ````
 
-The second tsffer step will generate a `ReleaseCI.tsffer` json manifest only, with the following content:
+The second tsffer step will generate a `ReleaseCI.tsffer` reference manifest, with the following content:
 
 ```json
 {
@@ -149,4 +150,4 @@ The second tsffer step will generate a `ReleaseCI.tsffer` json manifest only, wi
 }
 ````
 
-The third tsffer step will package up the two previous files into an archive (`tsffer_assets.tar.bz2`), but leave the individual input files in place (`package_messy` parameter set to `true`).
+The third tsffer step will package up the two previous files into an archive (`tsffer_assets.tar.bz2`), and upload this archive to the release file set (`release_upload` parameter set to `true`).

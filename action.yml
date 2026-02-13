@@ -28,8 +28,8 @@ inputs:
     description: 'Operation mode: "file" (default), "reference" or "package".'
     required: false
     default: file  
-  tsffer_upload:
-    description: 'Boolean (true/false) switch determining whether tsffer assets should be uploaded to release file set (default: false).'
+  release_upload:
+    description: 'Boolean (true/false) switch determining whether generated tsffer file/archive should be uploaded to release file set (default: false).'
     required: false
   file:
     description: 'Local file to upload (required if mode is "file").'
@@ -55,7 +55,7 @@ inputs:
 
 outputs:
   tsffer_file:
-    description: 'Json file containing tsffer metadata.'
+    description: 'Name of generated json file or tar archive containing tsffer metadata.'
     value: ${{ steps.generate_upload_manifest_asset.outputs.tsffer_file }}
 
 runs:
@@ -277,7 +277,7 @@ runs:
         path: ${{ steps.generate_upload_manifest_asset.outputs.tsffer_file }}
 
     - name: Upload tsffer file to release set
-      if: ${{ inputs.tsffer_upload == 'true' }}
+      if: ${{ inputs.release_upload == 'true' }}
       run: gh release upload "${{ github.ref_name }}" "${{ steps.generate_upload_manifest_asset.outputs.tsffer_file }}"
       shell: bash
       env:

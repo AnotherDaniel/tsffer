@@ -31,44 +31,45 @@ jobs:
         run: gh run view $GITHUB_RUN_ID
 
       # Do the quality artifact collection thing
-      - name: Collect first quality artifact
+      - name: Collect first quality artifact (upload to release set)
         uses: ./ # Uses an action in the root directory
         id: tsffer_README
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          tsffer_upload: true
           mode: file
+          release_upload: true
           file: README.md
           asset_description: "For tsffer testing purposes, we are providing our brilliant README"
           asset_name: "Project README"
           asset_tsf_ids: "TA-BEHAVIOURS"
           asset_type: "DOCUMENTATION"
 
-      - name: Collect second quality artifact
+      - name: Collect second quality artifact (implicitly don't upload to release set)
         uses: ./ # Uses an action in the root directory
         id: tsffer_LICENSE
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           file: LICENSE
 
-      - name: Collect third quality artifact, as a glob
+      - name: Collect third quality artifact, as a glob (explicitly don't upload to release set)
         uses: ./ # Uses an action in the root directory
         id: tsffer_glob
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          tsffer_upload: false
+          release_upload: false
           file: schema/*
           file_glob: true
           asset_description: "Set of files constituting a report of some kind"
           asset_type: "REPORT"
           asset_tsf_ids: "TA-BEHAVIOURS,TA-CONSTRAINTS"
 
-      - name: Collect fourth quality artifact, a reference to this workflow
+      - name: Collect fourth quality artifact, a reference to this workflow (upload to release set)
         uses: ./ # Uses an action in the root directory
         id: tsffer_REFERENCE
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           mode: reference
+          release_upload: true
           reference_urls: "https://github.com/AnotherDaniel/tsffer/blob/369c487287fb1e2fbe15d580501445c5d2b062ed/.github/workflows/release.yml#L11|https://www.example.org"
           asset_description: "Link to specific line in tsffer release automation"
           asset_name: "ReleaseCI"
@@ -76,18 +77,13 @@ jobs:
           asset_type: "SOURCE"
 
   artifacts_upload:
-    name: A job to add quality artifact archive to release file set
+    name: Upload quality artifact archive to release file set
     runs-on: ubuntu-latest
     permissions: write-all
     needs: quality_artifacts
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Print run ID
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh run view $GITHUB_RUN_ID
 
       - name: Create release
         uses: softprops/action-gh-release@v2
@@ -96,10 +92,10 @@ jobs:
         run: |
           echo ${{ steps.create_release.outputs.url }}
 
-      - name: Package quality artifacts, but leave assets in place
+      - name: Package quality artifacts and upload to release
         uses: ./ # Uses an action in the root directory
         id: tsffer_package
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           mode: package
-          tsffer_upload: true
+          release_upload: true

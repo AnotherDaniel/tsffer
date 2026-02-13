@@ -57,9 +57,9 @@
                     "type": "string",
                     "description": "If true the file can be a glob pattern, asset_name is ignored if this is true (only relevant when mode is 'file')."
                 },
-                "package_messy": {
+                "release_upload": {
                     "type": "boolean",
-                    "description": "If true, leave original tsffer files in place after packaging (only relevant when mode is 'package')."
+                    "description": "Boolean (true/false) switch determining whether generated tsffer file/archive should be uploaded to release file set (default: false)."
                 },
                 "reference_urls": {
                     "type": "string",
@@ -91,13 +91,13 @@
         "outputs": {
             "type": "object",
             "properties": {
-                "release_url": {
+                "tsffer_file": {
                     "type": "string",
-                    "description": "URL of the release"
+                    "description": "Name of generated json file or tar archive containing tsffer metadata."
                 }
             },
             "required": [
-                "release_url"
+                "tsffer_file"
             ],
             "additionalProperties": false
         },
