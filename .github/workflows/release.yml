@@ -24,6 +24,8 @@ jobs:
     permissions: write-all
     steps:
       - name: Print run ID
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: gh run view $GITHUB_RUN_ID
 
       - name: Checkout
@@ -81,6 +83,8 @@ jobs:
     needs: quality_artifacts
     steps:
       - name: Print run ID
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: gh run view $GITHUB_RUN_ID
 
       - name: Checkout
