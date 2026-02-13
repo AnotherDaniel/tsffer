@@ -39,6 +39,7 @@ jobs:
         id: tsffer_README
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          tsffer_upload: true
           mode: file
           file: README.md
           asset_description: "For tsffer testing purposes, we are providing our brilliant README"
@@ -58,6 +59,7 @@ jobs:
         id: tsffer_glob
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          tsffer_upload: false
           file: schema/*
           file_glob: true
           asset_description: "Set of files constituting a report of some kind"
@@ -82,4 +84,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           mode: package
-          package_messy: true
+          tsffer_upload: true
