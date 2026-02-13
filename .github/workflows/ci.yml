@@ -27,13 +27,12 @@ jobs:
     validate-workflow:
         name: Validate workflow YAML
         runs-on: ubuntu-latest
-
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         steps:
             - uses: actions/checkout@v4
             - name: Lint workflow files
               uses: github/super-linter@v4
-              env:
-                  GH_TOKEN: ${{ github.token }}
               with:
                   FILTER_REGEX_INCLUDE: .github/workflows/*.yml
                   DEFAULT_BRANCH: main
