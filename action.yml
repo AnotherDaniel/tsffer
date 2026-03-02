@@ -72,7 +72,7 @@ runs:
             exit 1
           fi
         elif [ "${{ inputs.mode }}" = "reference" ]; then
-          if [ -z "${{ inputs.reference_properties }}" ]; then
+          if [ -z "$INPUT_REFERENCE_PROPERTIES" ]; then
             echo "Input 'reference_properties' is required when mode is 'reference'."
             exit 1
           fi
@@ -88,9 +88,9 @@ runs:
           exit 1
         fi
 
-        # stash raw json input into shell variable so embedded quotes survive the
-        # GitHub Actions template expansion; later code references this variable.
-        reference_properties="${{ inputs.reference_properties }}"
+        # stash raw JSON from ACTION input env var; this avoids template
+        # expansion mangling the quotes inside the payload.
+        reference_properties="$INPUT_REFERENCE_PROPERTIES"
 
         # Placeholder/variable for generated tsffer metadata file
         tsffer_file=""
