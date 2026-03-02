@@ -83,10 +83,10 @@ jobs:
             [
               {
                 "reference_type": "github",
-                "repository": "${{ secrets.GITHUB_REPOSITORY }}",
+                "repository": "${{ github.repository }}",
                 "path": ".github/workflows/release.yml#L11",
                 "public": true,
-                "ref": "${{ secrets.GITHUB_REF_NAME }}"
+                "ref": "${{ github.ref_name }}"
               },
               {
                 "reference_type": "webpage",
