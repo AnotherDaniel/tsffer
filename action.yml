@@ -72,8 +72,8 @@ runs:
             exit 1
           fi
         elif [ "${{ inputs.mode }}" = "reference" ]; then
-          if [ -z "${{ inputs.reference_urls }}" ]; then
-            echo "Input 'reference' is required when mode is 'reference'."
+          if [ -z "${{ inputs.reference_properties }}" ]; then
+            echo "Input 'reference_properties' is required when mode is 'reference'."
             exit 1
           fi
           if [ -z "${{ inputs.asset_name }}" ]; then
