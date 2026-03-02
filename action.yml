@@ -37,17 +37,14 @@ inputs:
   file_glob:
     description: 'If true the file can be a glob pattern, asset_name is ignored if this is true (only relevant when mode is "file").'
     required: false
-  reference_urls:
-    description: 'URL(s) reference to evidence, multiple URLs can be provided by using `|` as a separator (required if mode is "reference").'
+  reference_properties:
+    description: 'Evidence reference properties, passed through into the output to be consumed by TSF trudag (required if mode is "reference").'
     required: false
   asset_name:
     description: 'Name of the asset. When not provided and mode is "file", will use the file name; required if mode is "reference".'
     required: false
   asset_description:
     description: 'More detailed description of the asset (Default: `""`).'
-    required: false
-  asset_type:
-    description: 'Type of the asset; free-text field that might be used to e.g. declare an asset to be of type DOCUMENTATION, SOURCE, etc (Default: `""`).'
     required: false
   asset_tsf_ids:
     description: 'List of TSF identifiers that this asset pertains to; can be one or more identifiers separated by commas (Default: `""`).'
@@ -121,7 +118,6 @@ runs:
           --arg download_url "$download_url" \
           --arg name "$asset_name" \
           --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
-          --arg type "${{ inputs.asset_type }}" \
           --arg by_workflow "$GITHUB_WORKFLOW" \
           --arg commit_sha "$GITHUB_SHA" \
           --arg ref "$GITHUB_REF" \
@@ -134,7 +130,6 @@ runs:
                   "download-url": $download_url,
                   "name": $name,
                   "tsf-ids": $tsf_ids,
-                  "type": $type
               },
               "context-info": {
                   "by-workflow": $by_workflow,
@@ -148,7 +143,12 @@ runs:
 
         # Generate json output with evidence reference/link manifest data
         generate_reference_manifest() {
-          local evidence_links="$1"
+          local reference_properties="$1"
+
+          if ! echo "${{ inputs.reference_properties }}" | jq . > /dev/null 2>&1; then
+            echo "Input 'reference_properties' is not valid JSON."
+            exit 1
+          fi
 
           # Set asset_name to equal file name (sans any path information), if empty
           if [ -z "${{ inputs.asset_name }}" ]; then
@@ -161,10 +161,9 @@ runs:
           # Generate JSON manifest for asset, write to output file
           jq -n \
           --arg description "${{ inputs.asset_description }}" \
-          --argjson evidence_links "$(echo $evidence_links | jq -R 'split("|")')" \
+          --argjson reference_properties "$(echo "$reference_properties" | jq .)" \
           --arg name "$asset_name" \
           --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
-          --arg type "${{ inputs.asset_type }}" \
           --arg by_workflow "$GITHUB_WORKFLOW" \
           --arg commit_sha "$GITHUB_SHA" \
           --arg ref "$GITHUB_REF" \
@@ -173,10 +172,9 @@ runs:
           '{
               "asset-info": {
                   "description": $description,
-                  "evidence-links": $evidence_links,
+                  "reference-properties": $reference_properties,
                   "name": $name,
                   "tsf-ids": $tsf_ids,
-                  "type": $type
               },
               "context-info": {
                   "by-workflow": $by_workflow,
@@ -208,13 +206,13 @@ runs:
 
         # Generate evidence link/reference content, upload to github.ref_name (github release)
         create_reference_manifest() {
-          local evidence_links="$1"
+          local reference_properties="$1"
 
           # Manifest output filename - asset_name with appended '.tsffer'
           generated_file="${{ inputs.asset_name }}.tsffer"
 
           # Generate manifest
-          generate_reference_manifest "$evidence_links" >> $generated_file
+          generate_reference_manifest "$reference_properties" >> $generated_file
           tsffer_file=$generated_file
           echo $tsffer_file
         }
@@ -253,7 +251,7 @@ runs:
             create_asset_manifest_upload "${{ inputs.file }}"
           fi
         elif [ "${{ inputs.mode }}" = "reference" ]; then
-          create_reference_manifest "${{ inputs.reference_urls }}"
+          create_reference_manifest "${{ inputs.reference_properties }}"
         elif [ "${{ inputs.mode }}" = "package" ]; then
           package_assets
         fi
