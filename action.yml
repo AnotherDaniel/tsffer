@@ -88,6 +88,10 @@ runs:
           exit 1
         fi
 
+        # stash raw json input into shell variable so embedded quotes survive the
+        # GitHub Actions template expansion; later code references this variable.
+        reference_properties="${{ inputs.reference_properties }}"
+
         # Placeholder/variable for generated tsffer metadata file
         tsffer_file=""
 
@@ -251,7 +255,7 @@ runs:
             create_asset_manifest_upload "${{ inputs.file }}"
           fi
         elif [ "${{ inputs.mode }}" = "reference" ]; then
-          create_reference_manifest "${{ inputs.reference_properties }}"
+          create_reference_manifest "$reference_properties"
         elif [ "${{ inputs.mode }}" = "package" ]; then
           package_assets
         fi
