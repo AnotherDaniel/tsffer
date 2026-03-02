@@ -145,7 +145,7 @@ runs:
         generate_reference_manifest() {
           local reference_properties="$1"
 
-          if ! echo "${{ inputs.reference_properties }}" | jq . > /dev/null 2>&1; then
+          if ! echo "$reference_properties" | jq . > /dev/null 2>&1; then
             echo "Input 'reference_properties' is not valid JSON."
             exit 1
           fi
