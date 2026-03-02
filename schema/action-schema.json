@@ -61,9 +61,9 @@
                     "type": "boolean",
                     "description": "Boolean (true/false) switch determining whether generated tsffer file/archive should be uploaded to release file set (default: false)."
                 },
-                "reference_urls": {
+                "reference_properties": {
                     "type": "string",
-                    "description": "URL(s) referencing evidence. Multiple URLs can be provided by using `|` as a separator (required if mode is 'reference')."
+                    "description": "Evidence reference properties, passed through into the output to be consumed by TSF trudag (required if mode is 'reference')."
                 },
                 "asset_name": {
                     "type": "string",
@@ -72,10 +72,6 @@
                 "asset_description": {
                     "type": "string",
                     "description": "More detailed description of the asset (Default: `\"\"`)."
-                },
-                "asset_type": {
-                    "type": "string",
-                    "description": "Type of the asset; free-text field that might be used to e.g. declare an asset to be of type DOCUMENTATION, SOURCE, etc (Default: `\"\"`)."
                 },
                 "asset_tsf_ids": {
                     "type": "string",
