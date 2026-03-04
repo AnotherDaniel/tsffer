@@ -45,17 +45,9 @@
                     "default": "${{ github.token }}"
                 },
                 "mode": {
-                    "description": "Operation mode: 'file' (default), 'reference' or 'package'.",
+                    "description": "Operation mode: 'reference' (default) or 'package'.",
                     "type": "string",
-                    "default": "file"
-                },
-                "file": {
-                    "type": "string",
-                    "description": "Local file to upload (required if mode is 'file')."
-                },
-                "file_glob": {
-                    "type": "string",
-                    "description": "If true the file can be a glob pattern, asset_name is ignored if this is true (only relevant when mode is 'file')."
+                    "default": "reference"
                 },
                 "release_upload": {
                     "type": "boolean",
@@ -67,15 +59,15 @@
                 },
                 "asset_name": {
                     "type": "string",
-                    "description": "Name of the asset. When not provided and mode is 'file', will use the file name; required if mode is 'reference'."
+                    "description": "Name of the tsffer manifest, required if mode is 'reference'."
                 },
                 "asset_description": {
                     "type": "string",
-                    "description": "More detailed description of the asset (Default: `\"\"`)."
+                    "description": "More detailed description of the asset (Default: `\"\"`), only relevant if mode is 'reference'."
                 },
                 "asset_tsf_ids": {
                     "type": "string",
-                    "description": "List of TSF identifiers that this asset pertains to; can be one or more identifiers separated by commas (Default: `\"\"`)."
+                    "description": "List of TSF identifiers that this asset pertains to, required if mode is 'reference'; can be one or more identifiers separated by commas (Default: `\"\"`)."
                 }
             },
             "required": [

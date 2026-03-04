@@ -13,25 +13,22 @@
 # tsffer Action
 
 The tsffer action collects metadata about evidence that can support statements about quality and process adherence of a project - automated via the project release workflow. It is designed to support adoption of the Trustable Software Framework [TSF](https://codethinklabs.gitlab.io/trustable/trustable/).
-The tsffer action has three operation modes:
+The tsffer action has two operation modes:
 
-- mode `file`: upload a file (release asset) to a GitHub release, generates a tsffer manifest that contains some metadata about the asset, and optionally upload manifest to release file set.
-- mode `reference`: create tsffer evidence manifest file based on evidence reference properties as consumed by the TSF trudag tool, and optionally upload to release file set.
+- mode `reference` (default): create tsffer evidence manifest file based on evidence reference properties as consumed by the TSF trudag tool, and optionally upload manifest to release file set.
 - mode `package`: typically run at the end of a release workflow, collect and package all generated tsffer manifest files into a single archive file, and optionally upload to release file set.
 
-The generated asset manifest file will have the same name as the release asset, with an added '.tsffer' extension. For URL reference manifest files, the name is provided via tsffer action configuration. The asset manifest is using json syntax, and contains some metadata pertaining the the originating git repository and release run, as well as some user-provided input like asset name, description, asset type, and a list of TSF IDs that the asset pertains to.
+The asset manifest is using json syntax, and contains some metadata pertaining the the originating git repository and release run, as well as user-provided input like asset name, type of TSF evidence that is being referenced, an optional description, and a list of TSF IDs that the asset pertains to.
 
 ## Inputs
 
 - `github_token` (required): GitHub token for authentication.
-- `mode` (required): Operation mode: "file" (default), "reference" or "package".
-- `file` (required if mode is "file"): Path to the file to upload.
-- `file_glob`: If set to true, the file argument can be a glob pattern (Default: false).
+- `mode`: Operation mode: "reference" (default) or "package".
 - `release_upload`: Boolean (true/false) switch determining whether generated tsffer file/archive should be uploaded to release file set (default: false).
-- `reference_properties` (required if mode is "reference"): URL(s) referencing evidence. Multiple URLs can be provided by using `|` as a separator.
-- `asset_name` (required if mode is "reference"): Name of the asset. When not provided and mode is "file", will use the file name.
+- `reference_properties` (required if mode is "reference"): json snippet describing the referenced evidence (refer to examples below).
+- `asset_name` (required if mode is "reference"): Name of the asset.
 - `asset_description` (optional): More detailed description of the asset (Default: `""`).
-- `asset_tsf_ids` (optional): List of TSF identifiers that this asset pertains to; can be one or more identifiers separated by commas (Default: `""`).
+- `asset_tsf_ids` (required if mode is "reference"): list of TSF identifiers that the evidence pertains to; can be one or more identifiers separated by commas (Default: `""`).
 
 ## Outputs
 
@@ -41,17 +38,8 @@ The generated asset manifest file will have the same name as the release asset, 
 
 This action expects to run in the context of a release (tag-initiated) GitHub worflow, using an Ubuntu runner:
 
-- `github.ref_name` and `github.ref` are set to valid/real values, as these are used to determine asset upload target and download URLs
+- `github.ref_name` and `github.ref` are set to valid/real values, as these are used to determine asset upload target
 - Ubuntu runner comes with pre-installed gh and jq binaries (this is currently the case on GitHub)
-
-## file_glob
-
-If used with input parameter `file_glob` set to `true`, the `file` parameter will be interpreted as a glob pattern, and all matching files will be treated identically:
-
-- a `.tsffer` manifest is generated for each file, with identical metadata each as provided by the workflow action
-- the asset files and the corresponding `.tsffer` manifests are uploaded to the GitHub release
-
-Please note that all uploaded files end up in a flat list of GitHub release assets - take care to not glob-upload multiple files with identical file names!
 
 ## Example Usage
 
@@ -63,16 +51,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Upload README to release
+        uses: svenstaro/upload-release-action@v2
+        id: upload_readme
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: README.md
+          tag: ${{ github.ref }}
+
       - name: Collect README artifact
         uses: anotherdaniel/tsffer
         id: tsffer_README
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          mode: file
-          file: README.md
-          asset_description: "For tsffer testing purposes, we are providing our README"
+          mode: reference
+          reference_properties: |
+            {
+              "reference_type": "download_url",
+              "url": "${{ steps.upload_readme.outputs.browser_download_url }}"
+            }
+          asset_description: "For illustration purposes, we are providing a link to our README in the release artifacts"
           asset_name: "Project README"
           asset_tsf_ids: "TA-BEHAVIOURS"
+
       - name: Point to action in release workflow
         uses: anotherdaniel/tsffer
         id: tsffer_ReleaseCI
@@ -96,6 +98,7 @@ jobs:
           asset_description: "Link to specific line in tsffer release automation"
           asset_name: "ReleaseCI"
           asset_tsf_ids: "TA-RELEASES,TA-ITERATIONS"
+
       - name: Package quality artifacts, but leave assets in place
         uses: anotherdaniel/tsffer
         id: tsffer_package
@@ -103,7 +106,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           mode: package
           release_upload: true
-
 ```
 
 ## Example manifest
@@ -114,8 +116,12 @@ The above workflow will generate a `README.md.tsffer` manifest file pipeline run
 {
   "asset-info": {
     "checksum-sha256": "db930ec18bfb83cd6db0180faead58d645a9ca71cff7b02e78e1583e3c89c7ec",
-    "description": "For tsffer testing purposes, we are providing our README",
-    "download-url": "https://github.com/AnotherDaniel/tsffer/releases/download/v0.0.42/README.md",
+    "description": "For illustration purposes, we are providing a link to our README in the release artifacts",
+    "reference-properties": 
+      {
+        "reference_type": "download_url",
+        "url": "https://github.com/AnotherDaniel/tsffer/releases/download/v0.0.42/README.md"
+      }
     "name": "Project README",
     "tsf-ids": [
       "TA-BEHAVIOURS"
@@ -142,10 +148,10 @@ The second tsffer step will generate a `ReleaseCI.tsffer` reference manifest, wi
     [
       {
         "reference_type": "github",
-        "repository": "${{ secrets.GITHUB_REPOSITORY }}",
+        "repository": "AnotherDaniel/tsffer",
         "path": ".github/workflows/release.yml#L11",
         "public": true,
-        "ref": "${{ secrets.GITHUB_REF_NAME }}"
+        "ref": "v0.0.42"
       },
       {
         "reference_type": "webpage",

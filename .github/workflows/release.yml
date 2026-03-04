@@ -40,39 +40,32 @@ jobs:
         run: gh run view $GITHUB_RUN_ID
 
       # Do the quality artifact collection thing
-      - name: Collect first quality artifact (upload to release set)
+      - name: Upload README to release
+        uses: svenstaro/upload-release-action@v2
+        id: upload_readme
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: README.md
+          tag: ${{ github.ref }}
+
+      - name: Collect README artifact
         uses: ./
         id: tsffer_README
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          mode: file
-          release_upload: true
-          file: README.md
-          asset_description: "For tsffer testing purposes, we are providing our brilliant README"
+          mode: reference
+          reference_properties: |
+            {
+              "reference_type": "download_url",
+              "url": "${{ steps.upload_readme.outputs.browser_download_url }}"
+            }
+          asset_description: "For illustration purposes, we are providing a link to our README in the release artifacts"
           asset_name: "Project README"
           asset_tsf_ids: "TA-BEHAVIOURS"
 
-      - name: Collect second quality artifact (implicitly don't upload to release set)
-        uses: ./
-        id: tsffer_LICENSE
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          file: LICENSE
-
-      - name: Collect third quality artifact, as a glob (explicitly don't upload to release set)
-        uses: ./
-        id: tsffer_glob
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          release_upload: false
-          file: schema/*
-          file_glob: true
-          asset_description: "Set of files constituting a report of some kind"
-          asset_tsf_ids: "TA-BEHAVIOURS,TA-CONSTRAINTS"
-
       - name: Collect fourth quality artifact, a reference to this workflow (upload to release set)
         uses: ./
-        id: tsffer_REFERENCE
+        id: tsffer_reference_list
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           mode: reference

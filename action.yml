@@ -9,12 +9,12 @@
 # SPDX-License-Identifier: EPL-2.0
 
 # This action expects to run in the context of a release (tag-initiated) GitHub worflow, using a Ubuntu runner:
-# - github.ref_name and github.ref are set to valid/real values, as these are used to determine asset upload target and download URLs
+# - github.ref_name and github.ref are set to valid/real values, as these are used to determine tsffer metadata file upload target and download URLs
 # - Ubuntu runner comes with pre-installed gh and jq binaries (this is currently the case on GitHub)
 
 ---
 name: 'tsffer'
-description: 'TSF transfer action - uploads a file to a GitHub release and generates a corresponding TSF manifest.'
+description: 'TSF transfer action - generates a TSF evidence metadata manifest based on input data.'
 branding:
   icon: 'link-2'
   color: 'gray-dark'
@@ -25,29 +25,23 @@ inputs:
     required: true
     default: ${{ github.token }}
   mode:
-    description: 'Operation mode: "file" (default), "reference" or "package".'
+    description: 'Operation mode: "reference" (default) or "package".'
     required: false
-    default: file
-  release_upload:
-    description: 'Boolean (true/false) switch determining whether generated tsffer file/archive should be uploaded to release file set (default: false).'
-    required: false
-  file:
-    description: 'Local file to upload (required if mode is "file").'
-    required: false
-  file_glob:
-    description: 'If true the file can be a glob pattern, asset_name is ignored if this is true (only relevant when mode is "file").'
-    required: false
+    default: reference
   reference_properties:
     description: 'Evidence reference properties, passed through into the output to be consumed by TSF trudag (required if mode is "reference").'
     required: false
+  release_upload:
+    description: 'Boolean (true/false) switch determining whether generated tsffer file/archive should be uploaded to release file set (default: false).'
+    required: false
   asset_name:
-    description: 'Name of the asset. When not provided and mode is "file", will use the file name; required if mode is "reference".'
+    description: 'Name of the tsffer manifest, required if mode is "reference".'
     required: false
   asset_description:
-    description: 'More detailed description of the asset (Default: `""`).'
+    description: 'More detailed description of the asset (Default: `""`), only relevant if mode is "reference".'
     required: false
   asset_tsf_ids:
-    description: 'List of TSF identifiers that this asset pertains to; can be one or more identifiers separated by commas (Default: `""`).'
+    description: 'List of TSF identifiers that this asset pertains to, required if mode is "reference"; can be one or more identifiers separated by commas (Default: `""`).'
     required: false
 
 outputs:
@@ -63,15 +57,10 @@ runs:
       run: |
         set -e
         # This is useful to enable for debugging
-        set -euxo pipefail
+        # set -euxo pipefail
 
         # Validate required inputs based on mode
-        if [ "${{ inputs.mode }}" = "file" ]; then
-          if [ -z "${{ inputs.file }}" ]; then
-            echo "Input 'file' is required when mode is 'file'."
-            exit 1
-          fi
-        elif [ "${{ inputs.mode }}" = "reference" ]; then
+        if [ "${{ inputs.mode }}" = "reference" ]; then
           if [ -z "$INPUT_REFERENCE_PROPERTIES" ]; then
             echo "Input 'reference_properties' is required when mode is 'reference'."
             exit 1
@@ -80,11 +69,15 @@ runs:
             echo "Input 'asset_name' is required when mode is 'reference'."
             exit 1
           fi
+          if [ -z "${{ inputs.asset_tsf_ids }}" ]; then
+            echo "Input 'asset_tsf_ids' is required when mode is 'reference'."
+            exit 1
+          fi
         elif [ "${{ inputs.mode }}" = "package" ]; then
           # No action here
           :
         else
-          echo "Invalid mode: ${{ inputs.mode }}. Must be 'file', 'reference' or 'package'."
+          echo "Invalid mode: ${{ inputs.mode }}. Must be 'reference' or 'package'."
           exit 1
         fi
 
@@ -97,53 +90,6 @@ runs:
 
         # Derive release URL
         release_url="${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
-
-        # Generate json output with asset manifest data
-        generate_file_manifest() {
-          local asset_file="$1"
-
-          # Set asset_name to equal file name (sans any path information), if empty
-          if [ -z "${{ inputs.asset_name }}" ]; then
-            asset_name=$(basename "$asset_file")
-          else
-            asset_name="${{ inputs.asset_name }}"
-          fi
-
-          # Construct artifact download url
-          download_url="${{ github.server_url }}/${{ github.repository }}/releases/download/${{ github.ref_name }}/$(basename $asset_file)"
-
-          # Calculate sha256 checksum for asset file
-          asset_checksum=$(sha256sum "$asset_file" | awk '{print $1}')
-
-          # Generate JSON manifest for asset, write to output file
-          jq -n \
-          --arg checksum "$asset_checksum" \
-          --arg description "${{ inputs.asset_description }}" \
-          --arg download_url "$download_url" \
-          --arg name "$asset_name" \
-          --argjson tsf_ids "$(echo ${{ inputs.asset_tsf_ids }} | jq -R 'split(",")')" \
-          --arg by_workflow "$GITHUB_WORKFLOW" \
-          --arg commit_sha "$GITHUB_SHA" \
-          --arg ref "$GITHUB_REF" \
-          --arg release_url "$release_url" \
-          --arg repository "$GITHUB_REPOSITORY" \
-          '{
-              "asset-info": {
-                  "checksum-sha256": $checksum,
-                  "description": $description,
-                  "download-url": $download_url,
-                  "name": $name,
-                  "tsf-ids": $tsf_ids,
-              },
-              "context-info": {
-                  "by-workflow": $by_workflow,
-                  "commit-sha": $commit_sha,
-                  "ref": $ref,
-                  "release-url": $release_url,
-                  "repository": $repository
-              }
-          }'
-        }
 
         # Generate json output with evidence reference/link manifest data
         generate_reference_manifest() {
@@ -190,24 +136,6 @@ runs:
           }'
         }
 
-        # Determine asset manifest filename, generate content, upload asset to github.ref_name (github release)
-        create_asset_manifest_upload() {
-          local input_file="$1"
-
-          # Manifest output filename - release artifact name with appended '.tsffer'
-          asset_file=$(basename "$input_file")
-          generated_file="$asset_file.tsffer"
-
-          # Generate manifest
-          generate_file_manifest "$input_file" >> $generated_file
-          tsffer_file=$generated_file
-
-          echo $tsffer_file
-
-          # Always upload asset to release set - tsffer file upload is determined separately (below)
-          gh release upload "${{ github.ref_name }}" "$input_file"
-        }
-
         # Generate evidence link/reference content, upload to github.ref_name (github release)
         create_reference_manifest() {
           local reference_properties="$1"
@@ -241,20 +169,7 @@ runs:
         }
 
         # Main script entry point
-        if [ "${{ inputs.mode }}" = "file" ]; then
-          # Process files based on file_glob
-          if [ "${{ inputs.file_glob }}" = 'true' ]; then
-            for file in ${{ inputs.file }}; do
-              if [ -f "$file" ]; then
-                # Generate and upload asset manifest, and if that works do the actual asset
-                create_asset_manifest_upload "$file"
-              fi
-            done
-          else
-            # Generate and upload asset manifest, and if that works do the actual asset
-            create_asset_manifest_upload "${{ inputs.file }}"
-          fi
-        elif [ "${{ inputs.mode }}" = "reference" ]; then
+        if [ "${{ inputs.mode }}" = "reference" ]; then
           create_reference_manifest "$reference_properties"
         elif [ "${{ inputs.mode }}" = "package" ]; then
           package_assets
