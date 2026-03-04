@@ -63,7 +63,7 @@ jobs:
           asset_name: "Project README"
           asset_tsf_ids: "TA-BEHAVIOURS"
 
-      - name: Collect fourth quality artifact, a reference to this workflow (upload to release set)
+      - name: Collect more quality artifacts, a reference to this workflow and some website pointer
         uses: ./
         id: tsffer_reference_list
         with:

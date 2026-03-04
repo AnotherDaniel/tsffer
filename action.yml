@@ -144,8 +144,8 @@ runs:
           generated_file="${{ inputs.asset_name }}.tsffer"
 
           # Generate manifest
-          generate_reference_manifest "$reference_properties" >> $generated_file
-          tsffer_file=$generated_file
+          generate_reference_manifest "$reference_properties" >> "$generated_file"
+          tsffer_file="$generated_file"
           echo $tsffer_file
         }
 
