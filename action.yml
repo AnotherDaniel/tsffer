@@ -57,7 +57,7 @@ runs:
       run: |
         set -e
         # This is useful to enable for debugging
-        # set -euxo pipefail
+        set -euxo pipefail
 
         # Validate required inputs based on mode
         if [ "${{ inputs.mode }}" = "reference" ]; then
