@@ -165,7 +165,9 @@ runs:
           ls -lh tsffer_assets/
 
           # Package tsffer files into archive
-          tar cvfj "$tsffer_file" -C tsffer_assets -- *.tsffer
+          files=(tsffer_assets/*.tsffer)
+          (( ${#files[@]} )) || exit 0
+          tar cvfj "$tsffer_file" -C tsffer_assets -- "${files[@]##*/}"
         }
 
         # Main script entry point
