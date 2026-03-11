@@ -125,7 +125,7 @@ runs:
                   "description": $description,
                   "reference-properties": $reference_properties,
                   "name": $name,
-                  "tsf-ids": $tsf_ids,
+                  "tsf-ids": $tsf_ids
               },
               "context-info": {
                   "by-workflow": $by_workflow,
