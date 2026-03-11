@@ -51,8 +51,9 @@ jobs:
       - name: Collect README artifact
         uses: ./
         id: tsffer_README
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           mode: reference
           reference_properties: |
             {
@@ -66,8 +67,9 @@ jobs:
       - name: Collect more quality artifacts, a reference to this workflow and some website pointer
         uses: ./
         id: tsffer_reference_list
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           mode: reference
           release_upload: true
           reference_properties: |
@@ -109,7 +111,8 @@ jobs:
       - name: Package quality artifacts and upload to release
         uses: ./
         id: tsffer_package
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           mode: package
           release_upload: true

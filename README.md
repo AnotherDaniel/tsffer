@@ -22,7 +22,6 @@ The asset manifest is using json syntax, and contains some metadata pertaining t
 
 ## Inputs
 
-- `github_token` (required): GitHub token for authentication.
 - `mode`: Operation mode: "reference" (default) or "package".
 - `release_upload`: Boolean (true/false) switch determining whether generated tsffer file/archive should be uploaded to release file set (default: false).
 - `reference_properties` (required if mode is "reference"): json snippet describing the referenced evidence (refer to examples below).
@@ -64,7 +63,6 @@ jobs:
         uses: anotherdaniel/tsffer
         id: tsffer_README
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           mode: reference
           reference_properties: |
             {
@@ -79,7 +77,6 @@ jobs:
         uses: anotherdaniel/tsffer
         id: tsffer_ReleaseCI
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           mode: reference
           reference_properties: |
             [
@@ -103,7 +100,6 @@ jobs:
         uses: anotherdaniel/tsffer
         id: tsffer_package
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           mode: package
           release_upload: true
 ```

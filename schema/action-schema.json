@@ -39,11 +39,6 @@
         "inputs": {
             "type": "object",
             "properties": {
-                "github_token": {
-                    "type": "string",
-                    "description": "GitHub token",
-                    "default": "${{ github.token }}"
-                },
                 "mode": {
                     "description": "Operation mode: 'reference' (default) or 'package'.",
                     "type": "string",
@@ -71,7 +66,6 @@
                 }
             },
             "required": [
-                "github_token",
                 "tag"
             ],
             "additionalProperties": false
