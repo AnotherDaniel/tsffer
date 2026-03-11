@@ -171,6 +171,10 @@ runs:
           files=("$ASSETS_DIR"/*.tsffer)
           (( ${#files[@]} )) || exit 0
           tar cvfj "$tsffer_file" -C "$ASSETS_DIR" -- "${files[@]##*/}"
+
+          # Clean up
+          rm -fr tmp
+          rm -fr "$ASSETS_DIR"
         }
 
         # Main script entry point
