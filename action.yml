@@ -129,7 +129,7 @@ runs:
               },
               "context-info": {
                   "by-workflow": $by_workflow,
-                  "by-action:" $by_action,
+                  "by-action": $by_action,
                   "commit-sha": $commit_sha,
                   "ref": $ref,
                   "release-url": $release_url,
