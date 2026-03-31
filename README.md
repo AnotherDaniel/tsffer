@@ -12,15 +12,27 @@
 
 # tsffer Action
 
-The tsffer action collects metadata about evidence that can support statements about quality and process adherence of a project - automated via the project release workflow. It is designed to support adoption of the Trustable Software Framework [TSF](https://codethinklabs.gitlab.io/trustable/trustable/).
-The tsffer action has two operation modes:
+The `tsffer` action collects metadata about evidence that can support statements about quality and process adherence of a project, automated via the project release workflow. This metadata is output as a json snippet, persisted as a GitHub workflow artifact (via the [upload-artifact GitHub action](https://github.com/actions/upload-artifact)). `tsffer` also offers a mode where it will collect all such artifacts from the current workflow, and package them into one single archive (to tidy up the handover to downstream process steps, easier archiving, etc.).
+The tsffer metadata is supposed to be consumed by the [`tsflink`](https://github.com/AnotherDaniel/tsflink) GitHub action, part of a toolchain to support adoption of the Trustable Software Framework [TSF](https://codethinklabs.gitlab.io/trustable/trustable/). A hello-world style example of the overall idea and workflow can be found in the [`tsftemplate` project](https://github.com/AnotherDaniel/tsftemplate).
+
+## Trustable Software Framework context
+
+The [Eclipse Trustable Software Framework (TSF)](https://pages.eclipse.dev/eclipse/tsf/tsf/) approach is designed for consideration of software where factors such as safety, security, performance, availability and reliability are considered critical. TSF method asserts that any consideration of trust must be based on evidence.
+
+TSF considers that delivery of software for critical systems must involve identification and management of the risks associated with the development, integration, release and maintenance of the software. In such contexts, software delivery is not complete without appropriate documentation and systems in place to review and mitigate these risks. The Eclipse Trustable Software Framework provides a method and tool consider supply chain and tooling risks as well as the risks inherent in pre-existing or newly developed software, and to apply statistical methods to measure confidence of the whole solution.
+
+The TSF method places an emphasis on integrating well into a typical Open Source development process, by being built around versionable and bite-sized textual statements that get organized in a [DOT graph](https://en.wikipedia.org/wiki/DOT_(graph_description_language)) - thus immediately benefitting from the associated tooling ecosystem. It comes with cli tool for manipulating the TSF dot-graph (`trudag`), immediately suggesting application in CI/automation workflows.
+
+## Using tsffer
+
+The `tsffer` action has two operation modes:
 
 - mode `reference` (default): create tsffer evidence manifest file based on evidence reference properties as consumed by the TSF trudag tool, and optionally upload manifest to release file set.
 - mode `package`: typically run at the end of a release workflow, collect and package all generated tsffer manifest files into a single archive file, and optionally upload to release file set.
 
 The asset manifest is using json syntax, and contains some metadata pertaining the the originating git repository and release run, as well as user-provided input like asset name, type of TSF evidence that is being referenced, an optional description, and a list of TSF IDs that the asset pertains to.
 
-## Inputs
+### Inputs
 
 - `mode`: Operation mode: "reference" (default) or "package".
 - `release_upload`: Boolean (true/false) switch determining whether generated tsffer file/archive should be uploaded to release file set (default: false).
@@ -29,18 +41,18 @@ The asset manifest is using json syntax, and contains some metadata pertaining t
 - `asset_description` (optional): More detailed description of the asset (Default: `""`).
 - `asset_tsf_ids` (required if mode is "reference"): list of TSF identifiers that the evidence pertains to; can be one or more identifiers separated by commas (Default: `""`).
 
-## Outputs
+### Outputs
 
 - `tsffer_file`: Name of generated json file or tar archive containing tsffer metadata.
 
-## Target release and other expectations
+### Target release and other expectations
 
-This action expects to run in the context of a release (tag-initiated) GitHub worflow, using an Ubuntu runner:
+This action expects to run in the context of a release (tag-initiated) GitHub workflow, using an Ubuntu runner:
 
 - `github.ref_name` and `github.ref` are set to valid/real values, as these are used to determine asset upload target
 - Ubuntu runner comes with pre-installed gh and jq binaries (this is currently the case on GitHub)
 
-## Example Usage
+## Usage example
 
 Using tsffer in your workflow looks like this:
 
@@ -104,7 +116,7 @@ jobs:
           release_upload: true
 ```
 
-## Example manifest
+## Example manifest output
 
 The above workflow will generate a `README.md.tsffer` manifest file pipeline run artifact, with the following content:
 
